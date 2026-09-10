@@ -61,18 +61,47 @@ def build_survey_mission(
     landing: tuple[float, float] | None,
     cruise_alt_m: float,
     precision_land: int = 0,
+    transit_to_survey: Sequence[tuple[float, float]] = (),
+    transit_to_home: Sequence[tuple[float, float]] = (),
+    transit_speed_mps: float | None = None,
 ) -> tuple[list[MissionItem], int, int]:
-    """[home, DO_CHANGE_SPEED, survey..., (transit to landing), NAV_LAND].
+    """The whole flight as one AUTO mission:
+
+        home, DO_CHANGE_SPEED, [corridor out], (DO_CHANGE_SPEED), survey lines,
+        [corridor home], transit to the landing point, NAV_LAND
+
+    The corridors are the SaR SSSI_NAV_TO_SEARCH / SSSI_NAV_TO_HOME idea: named waypoints that route
+    around an exclusion zone instead of cutting straight across it. They fly at `transit_speed_mps`
+    when one is given, and the speed drops back to `speed_mps` for the survey itself.
 
     Returns (items, first_survey_seq, last_survey_seq) so the monitor knows where the survey ends.
     """
-    items = [home_placeholder(), change_speed(1, speed_mps)]
+    transit_speed = float(transit_speed_mps) if transit_speed_mps else float(speed_mps)
+    items = [home_placeholder(), change_speed(1, transit_speed)]
     seq = 2
+
+    def add_leg(points: Sequence[tuple[float, float]]) -> None:
+        nonlocal seq
+        for lat, lon in points:
+            items.append(waypoint(seq, Waypoint(float(lat), float(lon), cruise_alt_m)))
+            seq += 1
+
+    add_leg(transit_to_survey)
+    if transit_speed != float(speed_mps):
+        items.append(change_speed(seq, float(speed_mps)))
+        seq += 1
+
     first = seq
     for wp in survey_wps:
         items.append(waypoint(seq, wp))
         seq += 1
     last = seq - 1
+
+    if transit_speed != float(speed_mps) and transit_to_home:
+        items.append(change_speed(seq, transit_speed))
+        seq += 1
+    add_leg(transit_to_home)
+
     if landing is not None:
         items.append(waypoint(seq, Waypoint(landing[0], landing[1], cruise_alt_m)))
         seq += 1

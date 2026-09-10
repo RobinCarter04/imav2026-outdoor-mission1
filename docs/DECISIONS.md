@@ -94,3 +94,30 @@ New record → copy `templates/decision_record.md`. Never delete a record; super
   days) or straight TCP to SERIAL2 (5763).
 - Consequences: three terminals, no GUI dependencies on the Mac, same port layout as the aircraft
   (mission code on its own link, GCS on another).
+
+## ADR-010 — Site is a third config layer, orthogonal to the sim/hardware profile
+- Status: accepted (2026-09-10)
+- Context: we need to fly the same code at Fenswood (test flights, SaR areas, an SSSI no-fly zone)
+  and at Haguenau (IMAV Mission 1). Site geography is independent of whether the code runs in SITL
+  or on the Pi, so folding it into `sim.yaml` would have forced four files and duplicated geometry.
+- Decision: `config/base.yaml` (defaults + safety caps) → `config/sites/<site>.yaml` (WHERE: flight
+  area, exclusions, transit corridor, survey polygon, landing point, ceiling, breach action, SITL
+  home) → `config/<profile>.yaml` (HOW the code runs: link and camera source only). Selected with
+  `--site imav|fenswood` on every command and `--site`/`SITE=` on the launcher; the default comes
+  from `base.yaml site.name`. A site file never edits the `safety:` block itself: `effective_max_alt_m`
+  and `effective_fence_action` are the single places that combine site and global limits, and a site
+  can only ever tighten the ceiling.
+- Consequences: adding a test field is one YAML file. Sites are covered by tests that assert every
+  configured site plans a legal mission (inside its fence, clear of its exclusions, below its ceiling).
+
+## ADR-011 — Exclusion zones and transit corridors are first-class
+- Status: accepted (2026-09-10)
+- Context: Fenswood's SSSI is a protected no-fly area sitting between the take-off point and the
+  survey area, so a straight run in would cross it. SaR solved this with hand-listed corridor
+  waypoints (SSSI_NAV_TO_SEARCH / _TO_HOME).
+- Decision: sites declare `exclusions` and `transit_to_survey` / `transit_to_home`. Exclusions are
+  uploaded as MAVLink exclusion fences in the same transaction as the inclusion fence (an upload
+  replaces the autopilot's whole list). The corridors become mission waypoints before and after the
+  survey, flown at `transit_speed_mps`. Loading refuses any survey waypoint, landing point or
+  corridor waypoint that falls inside an exclusion.
+- Consequences: Fenswood flies the same route SaR flew. IMAV declares no exclusions, so nothing changes there.

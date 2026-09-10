@@ -1,23 +1,10 @@
-# Simulation profile — ArduPilot SITL on this laptop (scripts/start_sitl.sh).
+# Simulation profile — ArduPilot SITL on this laptop (scripts/launch_sim.sh).
+# Site geometry (areas, fence, corridors, targets) lives in config/sites/<site>.yaml — this file only
+# says HOW we connect and where frames come from, so any site can be flown in SITL.
 vehicle:
-  connection: tcp:127.0.0.1:5762   # SITL SERIAL1 TCP port (same as the SaR project used)
-mission:
-  survey:
-    # TEST AREA ONLY: a 440 x 280 m Mapping-Area-1-sized rectangle centred on the rulebook site fence
-    # (§5.2) so SITL runs at the right latitude. Real corners come on competition day (--kml).
-    area_polygon:
-      - [48.80849, 7.852523]
-      - [48.80849, 7.858532]
-      - [48.811008, 7.858532]
-      - [48.811008, 7.852523]
-landing:
-  point: [48.80822, 7.851977]   # test landing point inside the site fence, SW of the area
+  connection: tcp:127.0.0.1:5762   # SITL SERIAL1 TCP port (--connection overrides, e.g. a second instance)
 camera:
   source: replay                    # replay | synthetic
   replay_file: data/datasets/sample_downward.mp4
-  synthetic_targets:                # "vehicles" the placeholder detector reports (inside the test area)
-    - {lat: 48.810288, lon: 7.853889, cls: CCF, ident: "67-CCF-M-ING"}
-    - {lat: 48.808939, lon: 7.856073, cls: VT4, ident: "VT4"}
-    - {lat: 48.810648, lon: 7.857849, cls: GBC180, ident: "GBC 180"}
 detection:
   placeholder: {radius_m: 40.0, period_s: 0.5, noise_m: 1.5}

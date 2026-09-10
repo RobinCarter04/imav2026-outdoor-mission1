@@ -10,7 +10,7 @@ PY="$HERE/.venv/bin/python"; [ -x "$PY" ] || PY=python3
 
 if [ "$PROFILE" = "hardware" ]; then
   ./scripts/preflight.sh
-  GCS_HOST="${GCS_HOST:-ROBINCARTER17AB.local}"
+  GCS_HOST="${GCS_HOST:-ROBINCARTERC2F9.local}"
   if ! pgrep -f "mavproxy.py --master=/dev/ttyAMA0" >/dev/null; then
     echo "starting MAVProxy bridge: /dev/ttyAMA0 -> udp:$GCS_HOST:14550 + udp:127.0.0.1:14551"
     mavproxy.py --master=/dev/ttyAMA0,921600 --out="udp:$GCS_HOST:14550" --out=udp:127.0.0.1:14551 \

@@ -1,5 +1,7 @@
 import math
 
+import pytest
+
 from imav_m1.mission import geo
 from imav_m1.mission.survey import (
     footprint_m,
@@ -91,3 +93,60 @@ def test_plan_survey_falls_back_to_explicit_spacing(sim_cfg):
     )
     plan = plan_survey(rect, cfg)
     assert plan.spacing_m == 35.0 and plan.footprint_w_m is None
+
+
+def test_inset_polygon_shrinks_convex_polygon_by_margin():
+    rect = geo.rectangle(HAGUENAU, 440.0, 280.0, heading_deg=25.0)
+    inner = geo.inset_polygon(rect, 10.0)
+    assert len(inner) == 4
+    assert abs(geo.polygon_area_m2(inner) - 420 * 260) < 20.0
+    for p in inner:
+        assert geo.point_in_polygon(p, rect)
+    assert geo.inset_polygon(rect, 0.0) == rect
+    with pytest.raises(ValueError):
+        geo.inset_polygon(rect, 200.0)
+
+
+def test_build_survey_mission_wraps_the_survey_in_transit_corridors():
+    from imav_m1.mission.items import build_survey_mission
+    from imav_m1.vehicle.interface import (
+        MAV_CMD_DO_CHANGE_SPEED,
+        MAV_CMD_NAV_LAND,
+        MAV_CMD_NAV_WAYPOINT,
+        Waypoint,
+    )
+
+    survey = [Waypoint(*geo.offset(HAGUENAU, 0, d), 30.0) for d in (0, 50, 100)]
+    out = [geo.offset(HAGUENAU, -100, -100), geo.offset(HAGUENAU, -50, -50)]
+    home = [geo.offset(HAGUENAU, -50, -50), geo.offset(HAGUENAU, -100, -100)]
+    landing = geo.offset(HAGUENAU, -120, -120)
+
+    items, first, last = build_survey_mission(
+        survey,
+        4.0,
+        landing,
+        30.0,
+        transit_to_survey=out,
+        transit_to_home=home,
+        transit_speed_mps=8.0,
+    )
+    kinds = [it.command for it in items]
+    assert [it.seq for it in items] == list(range(len(items)))
+    assert kinds[0] == MAV_CMD_NAV_WAYPOINT and kinds[-1] == MAV_CMD_NAV_LAND
+    speeds = [(it.seq, it.p2) for it in items if it.command == MAV_CMD_DO_CHANGE_SPEED]
+    assert [s for _, s in speeds] == [8.0, 4.0, 8.0]  # transit, survey, transit home
+    assert speeds[0][0] == 1 and speeds[1][0] == first - 1
+    assert last - first + 1 == len(survey)
+    survey_pts = [(items[s].lat, items[s].lon) for s in range(first, last + 1)]
+    assert survey_pts == [(w.lat, w.lon) for w in survey]
+    assert (items[-1].lat, items[-1].lon) == landing
+
+
+def test_build_survey_mission_without_corridors_is_unchanged():
+    from imav_m1.mission.items import build_survey_mission
+    from imav_m1.vehicle.interface import MAV_CMD_DO_CHANGE_SPEED, Waypoint
+
+    survey = [Waypoint(*geo.offset(HAGUENAU, 0, d), 30.0) for d in (0, 50)]
+    items, first, last = build_survey_mission(survey, 5.0, HAGUENAU, 30.0)
+    assert (first, last) == (2, 3)
+    assert sum(1 for it in items if it.command == MAV_CMD_DO_CHANGE_SPEED) == 1

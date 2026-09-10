@@ -27,7 +27,7 @@ FLT = flight test · DOC = document / checklist.
 | R-12 | Return to the designated landing area (mission validated only then); land inside the 3 × 3 m zone (1 pt) or within 1 × 1 m on the 80 cm ArUco 5x5 marker (2 pts) | S | §2.2, §5.2.1, §5.3.3 | SIM, FLT | NAV_LAND at point ✔ SIM; zone/ArUco open |
 | R-13 | Radio links within French limits: 2.4 GHz ≤ 25 mW, 5.8 GHz ≤ 25 mW, 863–868 MHz ≤ 25 mW, 433 MHz ≤ 10 mW | M | §2.1, Tab. 1 | DOC (check every link) | open (RF owner) |
 | R-14 | Whole mission (setup, flight, deliverables) fits its share of the 30-min team slot; 10 min prep beforehand | M | §2.2, §5.4 | SIM (timed), DOC | ≈8 sim-min Area 1 @ 60 m / 35 m; HFOV unknown |
-| R-15 | Accept the area polygon, landing zone and ArUco ID as inputs on competition day, quickly and verifiably | M | §5.2 | UT, DOC (rehearsed) | KML path implemented; unit-tested only |
+| R-15 | Accept the area polygon, landing zone and ArUco ID as inputs on competition day, quickly and verifiably | M | §5.2 | UT, DOC (rehearsed) | Fig. 19 zones digitised → sim/areas KML (±10 m); `plan --kml` works; MP-export rehearsal open |
 | R-16 | Green card obtained on the training day; pilots hold the AlphaTango qualification; ID/passport on site | M | §2, §2.2, §5.1, §5.2 | DOC | open (admin) |
 | R-17 | Technical document for self-made design points (SF1 ≤ 2 pts) | C | §5.3.4 | DOC | open |
 

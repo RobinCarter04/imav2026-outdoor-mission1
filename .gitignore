@@ -16,6 +16,7 @@ data/flights/*
 data/datasets/*
 !data/datasets/.gitkeep
 data/models/*
+data/plans/
 !data/models/.gitkeep
 !data/models/MANIFEST.md
 *.tlog

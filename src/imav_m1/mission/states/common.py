@@ -6,6 +6,12 @@ from typing import Any
 
 from ..framework import BaseState
 
+# The pilot signals "you may have it back" by putting the mode switch here. The mission still does
+# not move until the OPERATOR presses RESUME (docs/SAFETY.md).
+RESUMABLE_MODES = ("GUIDED", "AUTO")
+# Modes that mean the pilot or a failsafe is bringing the aircraft home — never resume from these.
+PILOT_RECOVERY_MODES = ("RTL", "LAND", "SMART_RTL", "AUTO_RTL", "BRAKE")
+
 MISSION_KEYS_PREFIXES = (
     "survey_",
     "mission_",
@@ -92,6 +98,81 @@ class MissionState(BaseState):
             return "0:00"
         e = int(self.now() - start)
         return f"{e // 60}:{e % 60:02d}"
+
+    def pilot_override_pause(self, mode: str, timeout_s: float) -> str | None:
+        """The safety pilot has control. Command NOTHING and wait.
+
+        Two independent gates must both be satisfied before the mission flies again:
+          1. the PILOT hands back, by putting the aircraft in GUIDED (or AUTO);
+          2. the OPERATOR presses RESUME in the dashboard.
+        A RESUME arriving while the pilot still holds it (LOITER, STABILIZE, POSHOLD, ...) is
+        rejected and not remembered — the operator presses it again after the hand-back.
+
+        Returns None to resume the caller's monitoring loop, or the name of the next state.
+        """
+        self.log(
+            f"PILOT OVERRIDE (mode={mode}) — paused, sending nothing. "
+            f"Pilot: return to GUIDED to hand back. Operator: then press RESUME."
+        )
+        start = self.now()
+        while self.now() - start < timeout_s:
+            self.sleep(self.tick())
+            self.vehicle.drain()
+            self.record_telemetry()
+            self.push_telemetry()
+            m = self.vehicle.mode()
+
+            if self.vehicle.armed() is False:
+                self.shared["landed_time"] = self.now()
+                self.log("aircraft disarmed while the pilot had control — going to REPORT")
+                self.push("override", None)
+                return "REPORT"
+            if m in PILOT_RECOVERY_MODES:
+                self.push("override", None)
+                return self.go_abort(f"pilot/failsafe chose {m}", command_rtl=False)
+
+            can_resume = m in RESUMABLE_MODES
+            self.push(
+                "override",
+                {
+                    "paused": True,
+                    "mode": m,
+                    "can_resume": can_resume,
+                    "waiting_for": "operator RESUME" if can_resume else "pilot to return to GUIDED",
+                    "seconds_left": int(timeout_s - (self.now() - start)),
+                },
+            )
+
+            cmd = self.consume_command()
+            if cmd:
+                kind = cmd.get("type")
+                if kind == "abort":
+                    self.push("override", None)
+                    return self.go_abort("operator abort during override", command_rtl=False)
+                if kind == "resume":
+                    if not can_resume:
+                        self.log(
+                            f"RESUME REJECTED — aircraft is in {m}; the pilot must return it to "
+                            f"GUIDED before the mission can continue"
+                        )
+                    elif m == "AUTO":
+                        self.log("operator RESUME — already in AUTO, resuming monitoring")
+                        self.push("override", None)
+                        return None
+                    elif self.vehicle.set_mode("AUTO"):
+                        self.log("operator RESUME — AUTO confirmed, continuing")
+                        self.push("override", None)
+                        return None
+                    else:
+                        self.push("override", None)
+                        return self.go_abort(
+                            "AUTO refused after operator RESUME", command_rtl=False
+                        )
+
+        self.push("override", None)
+        return self.go_abort(
+            f"pilot override timeout ({timeout_s:.0f} s with no operator RESUME)", command_rtl=False
+        )
 
     def clear_mission_keys(self) -> None:
         for k in list(self.shared.keys()):

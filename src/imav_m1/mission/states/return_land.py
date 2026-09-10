@@ -51,7 +51,7 @@ class ReturnLandState(MissionState):
             if mode not in ("AUTO", "LAND", "UNKNOWN"):
                 if mode in ("RTL", "SMART_RTL"):
                     return self.go_abort(f"switched to {mode} during return", command_rtl=False)
-                nxt = self._pilot_override(mode, float(ops.get("override_timeout_s", 120)))
+                nxt = self.pilot_override_pause(mode, float(ops.get("override_timeout_s", 300)))
                 if nxt:
                     return nxt
                 continue
@@ -64,24 +64,3 @@ class ReturnLandState(MissionState):
             elif fallback_sent and self.now() - start > 2 * timeout:
                 return self.go_abort("still airborne after LAND fallback", command_rtl=False)
             self.sleep(self.tick())
-
-    def _pilot_override(self, mode: str, timeout: float) -> str | None:
-        self.log(f"PILOT OVERRIDE (mode={mode}) during return — not commanding")
-        start = self.now()
-        while self.now() - start < timeout:
-            self.sleep(self.tick())
-            self.vehicle.drain()
-            self.record_telemetry()
-            m = self.vehicle.mode()
-            if self.vehicle.armed() is False:
-                self.shared["landed_time"] = self.now()
-                self.log("pilot landed the aircraft")
-                return "REPORT"
-            if m == "GUIDED":
-                self.log("pilot handed back (GUIDED) — resuming AUTO")
-                if self.vehicle.set_mode("AUTO"):
-                    return None
-                return self.go_abort("AUTO refused after hand-back", command_rtl=False)
-            if m in ("LAND", "AUTO"):
-                return None
-        return self.go_abort("pilot override timeout during return", command_rtl=False)

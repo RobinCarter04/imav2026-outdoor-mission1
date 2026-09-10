@@ -19,7 +19,9 @@ No ROS, no PX4, no Gazebo. macOS laptop for dev; Pi 5 (Python 3.13) on the aircr
 make setup          venv + editable install
 make test           unit tests, no SITL  ← run before saying any task is done
 make lint / fmt     ruff
-make sitl / sitl-stop        headless SITL via the prebuilt binary (never sim_vehicle.py on macOS: it opens a Terminal window)
+make launch [GCS=<host>]     ONE COMMAND sim session: SITL + mission (+ MP bridge), a Terminal window each (docs/LAUNCH.md)
+make stop                    stop SITL + bridge + mission
+make sitl / sitl-stop        SITL only, prebuilt binary (never sim_vehicle.py on macOS: it opens a Terminal window)
 make gcs-bridge GCS=<vm>     MAVProxy → Mission Planner in the Parallels VM
 make mission-sim[-auto]      run mission against SITL (dashboard / scripted)
 make plan-sim                offline survey plan preview
@@ -58,4 +60,5 @@ make check-config PROFILE=hardware
 
 ## Where things are decided
 `docs/REQUIREMENTS.md` (what "done" means) · `docs/DECISIONS.md` (why) · `docs/HARDWARE.md` (what flies)
-· `docs/WORKING_NOTES.md` (open questions — check before asking the human something already answered).
+· `docs/WORKING_NOTES.md` (open questions — check before asking the human something already answered)
+· `docs/LAUNCH.md` (how a session is started, on the laptop and on the Pi).

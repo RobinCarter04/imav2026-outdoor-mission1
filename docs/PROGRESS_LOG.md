@@ -18,6 +18,98 @@ Entry template:
 
 ---
 
+## 2026-09-10 (later still) — Operator RESUME gate, site switch (Fenswood/IMAV), detector connector
+- Who: Robin (with Claude)
+- Commit: uncommitted on top of `7d80a68`   Profile: sim   Sites: imav, fenswood
+- Changed:
+  1. **Manual override tightened.** Inherited behaviour auto-resumed the mission the moment the pilot
+     flipped back to GUIDED. Now `MissionState.pilot_override_pause` (shared by SURVEY and RETURN_LAND)
+     needs BOTH gates: the pilot returns the aircraft to GUIDED/AUTO, and the operator presses RESUME.
+     A RESUME arriving while the pilot still holds it is rejected and not remembered. RTL/LAND/BRAKE
+     from pilot or failsafe still aborts without commanding; disarm goes to REPORT. Dashboard gained a
+     paused banner and a RESUME button that is disabled until the hand-back. `override_timeout_s` 120 → 300.
+  2. **Site layer** (ADR-010): `config/sites/{imav,fenswood}.yaml` selected by `--site`; base → site →
+     profile. Fenswood is the SaR flying-day setup ported verbatim from AENGM0074.kml — Flight Area
+     fence, SSSI exclusion, Survey Area, Take-Off Location, the SSSI-avoiding corridor, 25 m cruise,
+     50 m ceiling, RTL on breach. Exclusion fences and transit corridors are now first-class (ADR-011).
+  3. **Detector connector**: `data/flights/latest` pointer, `--detector-cmd` on both launchers (sets
+     `IMAV_RUN_DIR` / `IMAV_DASHBOARD`), and `POST /api/detection` as an equal alternative to appending
+     to `detections.jsonl`. Documented in `docs/DETECTION_INTERFACE.md`.
+  4. **Dashboard API tests** for the operator command route and the detector `POST /api/detection`
+     route, including rejection of reports missing lat/lon/cls or with a non-numeric position.
+- Tested: `make test` **59 passed**, lint clean. New unit scenarios cover the two-gate resume, refusal
+  of an early RESUME, silent timeout-to-abort, and a pilot RTL during override; plus every site planning
+  a legal mission, Fenswood's SSSI/corridor, a site being unable to raise the global ceiling, and the
+  dashboard HTTP surface.
+  **Real SITL, override (re-run after the stick fix below):** all 10 checks passed, driving MAVLink on
+  one link and the dashboard over HTTP — pauses on LOITER, refuses the early RESUME, stays paused after
+  the hand-back, and commands AUTO only once the operator presses RESUME (`/tmp/override_sitl_test.py`).
+  **Real SITL, Fenswood — full mission, DONE:** fence upload 11/11 vertices (4 flight area + 7 SSSI),
+  `action=rtl`, `ceiling=50 m` overriding the 75 m cap; corridor out, 20/20 survey waypoints, corridor
+  home, NAV_LAND, disarmed at the Take-Off Location, both test vehicles in the submission table.
+  Of 267 armed track positions **0 entered the SSSI**; max altitude 25.3 m
+  (`data/flights/2026-09-10_sim_15_fenswoodtest`).
+- Result: PASS.
+- Learned / surprises: raw SITL starts with the simulated throttle stick at MINIMUM, so selecting LOITER
+  commands a full descent and the aircraft lands and disarms — it looked like a mission bug until the
+  telemetry showed the descent. `scripts/sitl_hold_sticks.sh` holds the sticks centred; GUIDED needs no
+  help. Documented in `sim/README.md` §5b.
+- Learned / surprises (2): killing a mission process with SIGTERM leaves its placeholder-detector
+  subprocess running — Python does not run the `finally` that terminates it. Five had accumulated over
+  a session of test runs. `scripts/stop_sim.sh` catches them by name, so the normal path is covered; a
+  SIGTERM handler in `cli._run` would close it properly and belongs with the "results on shutdown" fix.
+- Note: two Claude sessions worked this task concurrently after an accidental split. Reconciled here —
+  duplicated `--site` / `--detector-cmd` options and a duplicated detector-window block in
+  `scripts/launch_sim.sh` were removed, and the claims in this entry were re-verified against fresh runs.
+- Next: (1) Robin runs `make launch SITE=fenswood` end to end with Mission Planner spectating;
+  (2) the four assessment fixes (results on shutdown, fence read-back, home-inside-fence, mission timer);
+  (3) drop the teammate's detector in behind `--detector-cmd`.
+
+## 2026-09-10 (later) — One-command launchers for simulation and for the Pi
+- Who: Robin (with Claude)
+- Commit: uncommitted   Profile: sim
+- Changed: `scripts/launch_sim.sh` (opens a Terminal window per stage: SITL → optional MAVProxy bridge
+  → mission; waits for SITL's port, settles GPS, opens the dashboard; refuses to start when a stray
+  SITL/MAVProxy/mission is running because an idle GCS client freezes SITL; `--dry-run`, `--clean`,
+  `--auto`, `--kml`, `--speedup`, `--instance`), `scripts/stop_sim.sh`, and `scripts/launch_hardware.sh`
+  for the Pi (preflight gate → MAVProxy bridge → mission → detector, all inside tmux so a dropped SSH
+  link cannot kill a flight; `--bench` skips the gate and says the session is not cleared to fly).
+  `start_sitl.sh` gained `INSTANCE=N` (ports 5760+10N / 5762+10N, own runtime dir);
+  `mavproxy_gcs_bridge.sh` takes the SITL port; `imav-m1 run --connection` overrides the profile.
+  New `docs/LAUNCH.md`; `make launch [GCS=…] [KML=…]` and `make stop`.
+- Tested: `make test` 33 passed, lint clean. `launch_sim.sh --dry-run` for both the 3-window and the
+  headless shapes; stray detection correctly caught two leftover MAVProxy processes. `start_sitl.sh --fg`
+  with `INSTANCE=2` opened SERIAL1 on 5782 with its own eeprom, and a mission connected to it and flew
+  through setup → preflight → takeoff → survey. `launch_hardware.sh --dry-run --bench` prints the three
+  commands and warns that /dev/ttyAMA0 is absent off-Pi.
+- Result: PASS, with one caveat: the `open -a Terminal` window-opening step itself has not been run
+  (it would put windows on Robin's desktop); everything either side of it is verified.
+- Learned / surprises: `open -a Terminal <file>.command` needs no Automation permission, unlike
+  osascript, so the launcher generates a small .command per stage under `sim/runtime/launch/`.
+- Next: Robin runs `make launch GCS=<vm>` end to end; then the four small fixes from the assessment.
+
+## 2026-09-10 — Competition zones georeferenced from rulebook Fig. 19; survey inset margin; assessment
+- Who: Robin (with Claude)
+- Commit: `7d80a68` baseline + uncommitted changes below   Profile: sim   SITL: 4.6.0-beta1 hexa, 5×
+- Changed: `sim/areas/haguenau_fig19.kml` + `_zones.json` (geofence, flight zone trace, Mapping Areas 1/2,
+  fire/drop/dead-man zones, both take-off squares, Tab. 6 sample vehicles) digitised from Fig. 19 after
+  fitting the four §5.2 fence corners (1.45 m/px, 1 m residual, ≈ ±10 m overall); check image in
+  `docs/rulebook/`. `geo.inset_polygon` + `mission.survey.edge_margin_m` (12 m) so waypoints never touch
+  the fence (Area 1 as drawn abuts the flight-zone boundary and overlaps it ~20 m at its SE corner — the
+  KML therefore exposes the rulebook geofence as the fence and the traced flight zone as advisory).
+  `config/sim.yaml` now flies the drawn Area 1 with landing at the multirotor T/O square; SITL home moved
+  there; `imav-m1 run --connection` override; `docs/PROGRESS_ASSESSMENT_2026-09-10.md` + status page.
+- Tested: `make test` 33 passed, lint clean. `imav-m1 plan --kml sim/areas/haguenau_fig19.kml`: 7 lines,
+  3.27 km, ≈5.8 min at 10 m/s. SITL nominal run on the KML area (instance -I1, ports 5770+): 14/14
+  waypoints, landed at the T/O square, 3/3 vehicles (`data/flights/2026-09-10_sim_05_fig19area`).
+- Result: PASS.
+- Learned / surprises: a stopped/idle GCS client on SITL SERIAL0 (a MAVProxy left over from an earlier
+  terminal session auto-reconnected to a fresh SITL) stalls the whole simulation — position froze at <1 %
+  CPU. Use `-I1` (ports 5770/5772) or kill the stray bridge. `imav-m1 plan --kml` is the fastest sanity
+  check of an area file.
+- Next: commit this; Robin's runbook run to landing with Mission Planner; team decisions (assessment §5);
+  ask organisers which boundary the fence-breach rule applies to (geofence vs black flight-zone line).
+
 ## 2026-09-08 — Mission 1 state machine ported from SaR and flown end-to-end in SITL
 - Who: Robin (with Claude)
 - Commit: — (uncommitted working tree)   Profile: sim   SITL: ArduCopter 4.6.0-beta1 (Group Project checkout), hexa

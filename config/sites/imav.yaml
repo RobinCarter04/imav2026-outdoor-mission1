@@ -1,0 +1,41 @@
+# IMAV 2026 outdoor competition — Haguenau military training ground.
+# Geometry digitised from rulebook V4 Fig. 19 after fitting the four §5.2 geofence corners
+# (≈ ±10 m; sim/areas/haguenau_fig19.kml holds every zone). The OFFICIAL corners are handed out on
+# competition day — take them with `--kml`, which overrides everything here.
+site:
+  name: imav
+  description: "IMAV 2026 Outdoor Mission 1 — Haguenau (rulebook V4 §5.2, Fig. 19)"
+  center: [48.8097487, 7.8555272]
+  flight_area:                # the rulebook §5.2 site geofence. The black flight-zone line inside it
+    - [48.80570456695289, 7.84961762660713]     # is advisory here: Mapping Area 1 as drawn touches it.
+    - [48.810842794362294, 7.847237082007214]
+    - [48.81380786901547, 7.861214602971546]
+    - [48.80863939598765, 7.864039635567677]
+  exclusions: []              # none published
+  transit_to_survey: []       # open ground: straight in
+  transit_to_home: []
+  max_alt_m: 75               # rulebook §2: 80 m AGL, 5 m margin
+  sitl_home: [48.806462, 7.852303, 150, 0]      # multirotor take-off/landing square (Fig. 19)
+
+mission:
+  name: imav2026_outdoor_m1
+  cruise_alt_m: 60
+  cruise_speed_mps: 10.0
+  survey:
+    spacing_m: 35             # until camera.hfov_deg is measured (tools/coverage_calc.py)
+    overlap_side: 0.4
+    area_polygon:             # Mapping Area 1 (§5.4.1, 440 x 280 m as drawn in Fig. 19)
+      - [48.811085, 7.85104]
+      - [48.811282, 7.854512]
+      - [48.807157, 7.855075]
+      - [48.80696, 7.851603]
+    area2_polygon: []         # Mapping Area 2 — optional extension (R-03), not yet flown
+
+landing:
+  point: [48.806462, 7.852303]
+
+camera:
+  synthetic_targets:          # placeholder-detector "vehicles"; the first two are the rulebook Tab. 6 samples
+    - {lat: 48.8095202, lon: 7.8520274, cls: CCF, ident: "67-CCF-M-ING"}
+    - {lat: 48.8084886, lon: 7.8518772, cls: GBC180, ident: "GBC 180"}
+    - {lat: 48.810201, lon: 7.853604, cls: VT4, ident: "VT4"}

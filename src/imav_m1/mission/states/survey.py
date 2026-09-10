@@ -3,7 +3,8 @@
   * drain() first every tick, then read cached mode/telemetry/progress;
   * never fight the pilot or a failsafe: if the mode leaves AUTO we stop commanding. LAND/RTL means
     a failsafe or the pilot is bringing it home → ABORT (no commands). Any other mode = pilot
-    override → wait for a GUIDED hand-back, then re-request AUTO; time out → ABORT;
+    override → pause; the mission only continues when the pilot has handed back (GUIDED) AND the
+    operator presses RESUME (MissionState.pilot_override_pause); time out → ABORT;
   * completion is judged on MISSION_ITEM_REACHED of the last survey waypoint, not MISSION_CURRENT.
 The detector is told DETECTING for the duration; detections are surfaced to the dashboard.
 """
@@ -74,7 +75,7 @@ class SurveyState(MissionState):
                         f"autopilot/pilot switched to {mode} (failsafe?)", command_rtl=False
                     )
                 if mode != "AUTO":
-                    nxt = self._pilot_override(mode, override_timeout)
+                    nxt = self.pilot_override_pause(mode, override_timeout)
                     if nxt:
                         return nxt
                     continue
@@ -99,25 +100,3 @@ class SurveyState(MissionState):
                 )
                 return "RETURN_LAND"
             self.sleep(self.tick())
-
-    def _pilot_override(self, mode: str, timeout: float) -> str | None:
-        """Pilot took the sticks. Wait for GUIDED hand-back (SaR convention), then resume AUTO."""
-        self.log(f"PILOT OVERRIDE (mode={mode}) — survey paused, not commanding")
-        self.push("survey", {"status": f"PAUSED (pilot: {mode})"})
-        start = self.now()
-        while self.now() - start < timeout:
-            self.sleep(self.tick())
-            self.vehicle.drain()
-            self.record_telemetry()
-            self.push_telemetry()
-            m = self.vehicle.mode()
-            if m == "GUIDED":
-                self.log("pilot handed back (GUIDED) — re-requesting AUTO")
-                if self.vehicle.set_mode("AUTO"):
-                    return None  # resume monitoring
-                return self.go_abort("AUTO refused after hand-back", command_rtl=False)
-            if m in ("RTL", "LAND"):
-                return self.go_abort(f"pilot chose {m}", command_rtl=False)
-            if self.is_abort_command(self.consume_command()):
-                return self.go_abort("operator abort during override", command_rtl=False)
-        return self.go_abort("pilot override timeout", command_rtl=False)

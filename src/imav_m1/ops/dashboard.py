@@ -9,9 +9,12 @@ Mission Planner remains the real map and the safety pilot's view.
 from __future__ import annotations
 
 import logging
+import time
 from pathlib import Path
 
 from flask import Flask, jsonify, request, send_file
+
+from ..detection.link import DetectorLink
 
 logging.getLogger("werkzeug").setLevel(logging.ERROR)
 
@@ -33,6 +36,11 @@ table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:3px 4px;b
 canvas{width:100%;background:#0b1a0b;border-radius:6px}
 .bar{height:14px;background:#333;border-radius:7px;overflow:hidden}.bar>div{height:100%;background:#4a8}
 .big{font-size:28px;font-weight:700}
+[hidden]{display:none!important}
+button.resume{background:#575;font-weight:700}button.resume:disabled{background:#333;color:#888}
+#ovr{border:2px solid #d84;background:#2a1f10}#ovr h3{color:#fb6}
+.pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:12px;background:#444}
+.pill.yes{background:#264;color:#8f8}.pill.no{background:#522;color:#f99}
 </style></head><body>
 <header><span id="conn" class="dot"></span><span id="state" class="state">…</span>
 <span>mode <b id="mode">?</b></span><span>armed <b id="armed">?</b></span><span>alt <b id="alt">?</b> m</span>
@@ -47,6 +55,7 @@ canvas{width:100%;background:#0b1a0b;border-radius:6px}
 <label><input type="checkbox" id="pilot" onchange="cmd('pilot_ready',{value:this.checked})"> safety pilot ready</label>
 <br><button class="start" id="startbtn" onclick="cmd('start_mission')">3 START MISSION</button>
 <button class="abort" onclick="if(confirm('ABORT → RTL?'))cmd('abort')">ABORT</button>
+<br><button class="resume" id="resumebtn" onclick="cmd('resume')" disabled>RESUME MISSION</button>
 <br><button onclick="cmd('cancel')">cancel</button><button onclick="cmd('reset')">reset</button>
 <div id="err" class="fail"></div></section>
 <section><h3>Plan</h3><div id="plan" class="mono">—</div></section>
@@ -54,6 +63,7 @@ canvas{width:100%;background:#0b1a0b;border-radius:6px}
 <section><h3>Detections <span id="ndet"></span></h3><table id="det"></table></section>
 </div>
 <div>
+<section id="ovr" hidden><h3>Safety pilot has control</h3><div id="ovrtext"></div></section>
 <section><h3>Map (local metres)</h3><canvas id="map" width="900" height="640"></canvas></section>
 <section><h3>Survey</h3><div class="bar"><div id="pbar" style="width:0"></div></div><div id="survey" class="mono">—</div></section>
 </div>
@@ -76,6 +86,14 @@ function render(s){
  $('err').textContent=(s.idle&&s.idle.last_error)||'';
  $('plan').textContent=fmt(s.plan);
  if(s.preflight){let h='';for(const k in s.preflight){const v=s.preflight[k];if(typeof v==='object'&&v!==null&&'pass'in v)h+=`<tr><td class="${v.pass?'pass':'fail'}">${v.pass?'✔':'✘'} ${k}</td><td>${v.detail}</td></tr>`}$('pf').innerHTML=h;$('startbtn').disabled=!s.preflight.all_ready}
+ const o=s.override,ob=$('ovr'),rb=$('resumebtn');
+ if(o&&o.paused){ob.hidden=false;
+  $('ovrtext').innerHTML=`<div class="big">MISSION PAUSED</div>
+   <div>The mission is sending nothing. Aircraft mode <b>${o.mode}</b>.</div>
+   <div style="margin-top:6px">pilot handed back <span class="pill ${o.can_resume?'yes':'no'}">${o.can_resume?'YES':'NO — needs GUIDED'}</span>
+   &nbsp;waiting for <b>${o.waiting_for}</b>&nbsp;·&nbsp;aborts in ${o.seconds_left}s</div>`;
+  rb.disabled=!o.can_resume;rb.textContent=o.can_resume?'RESUME MISSION':'RESUME (pilot must return to GUIDED)';
+ }else{ob.hidden=true;rb.disabled=true;rb.textContent='RESUME MISSION';}
  const sv=s.survey||{};$('pbar').style.width=(sv.pct||0)+'%';$('survey').textContent=fmt(sv);
  const d=s.detections||[];$('ndet').textContent=d.length?`(${d.length})`:'';$('det').innerHTML=d.map((x,i)=>`<tr><td>${i+1}</td><td>${x.ident||x.cls}</td><td class="mono">${(+x.lat).toFixed(6)} ; ${(+x.lon).toFixed(6)}</td></tr>`).join('');
  $('land').textContent=fmt(s.landing)+(s.abort?'\nABORT: '+fmt(s.abort):'');
@@ -120,6 +138,28 @@ def create_app(status, run_dir: Path | None = None) -> Flask:
             return jsonify({"ok": False, "error": "missing type"}), 400
         body = {k: v for k, v in body.items() if v is not None}
         status.send_command(body)
+        return jsonify({"ok": True})
+
+    @app.route("/api/detection", methods=["POST"])
+    def api_detection():
+        """Second, equivalent way for a detector to report: POST one JSON detection.
+
+        Same fields as a line of detections.jsonl (docs/DETECTION_INTERFACE.md); it is appended to
+        that file, so everything downstream — dashboard, vehicle table, map — is identical.
+        """
+        if run_dir is None:
+            return jsonify({"ok": False, "error": "no run dir"}), 503
+        det = request.get_json(force=True, silent=True) or {}
+        missing = [k for k in ("lat", "lon", "cls") if det.get(k) is None]
+        if missing:
+            return jsonify({"ok": False, "error": f"missing fields: {missing}"}), 400
+        try:
+            det["lat"], det["lon"] = float(det["lat"]), float(det["lon"])
+        except (TypeError, ValueError):
+            return jsonify({"ok": False, "error": "lat/lon must be numbers"}), 400
+        det.setdefault("t", time.time())
+        det.setdefault("source", "http")
+        DetectorLink(run_dir).append_detection(det)
         return jsonify({"ok": True})
 
     @app.route("/api/results/<path:name>")

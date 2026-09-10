@@ -1,0 +1,63 @@
+# Fenswood Farm (University of Bristol flying field) — the SaR project's site, used for real test
+# flights before Haguenau. Geometry ported verbatim from
+# ~/Desktop/MSc Aerial Robotics/SaR Quadrotor Mission/sarFlightDay4/AENGM0074.kml
+#
+# The SSSI is a protected no-fly zone that sits between the take-off point and the survey area, so a
+# straight run in WOULD cross it. The corridor waypoints below are the SaR SSSI_NAV_TO_SEARCH /
+# SSSI_NAV_TO_HOME lists and are flown before and after the survey.
+site:
+  name: fenswood
+  description: "Fenswood Farm, Bristol — SaR flying field (AENGM0074). SSSI exclusion zone active."
+  center: [51.4232, -2.6690]
+  flight_area:                # "Flight Area" placemark — inclusion fence, 9.2 ha
+    - [51.4234260, -2.6717208]
+    - [51.4212462, -2.6701340]
+    - [51.4224401, -2.6656878]
+    - [51.4246918, -2.6670602]
+  exclusions:
+    - name: SSSI              # protected site — uploaded as a MAVLink exclusion fence
+      points:
+        - [51.4235359, -2.6714518]
+        - [51.4221564, -2.6697682]
+        - [51.4226711, -2.6677054]
+        - [51.4233559, -2.6681646]
+        - [51.4228608, -2.6700434]
+        - [51.4232667, -2.6709654]
+        - [51.4235686, -2.6713243]
+  transit_to_survey:          # SaR SSSI_NAV_TO_SEARCH — around the SSSI, verified clear of it
+    - [51.4234034, -2.6713890]
+    - [51.4220921, -2.6697958]
+    - [51.4226507, -2.6675588]
+    - [51.4234937, -2.6681381]
+  transit_to_home:            # SaR SSSI_NAV_TO_HOME — the same corridor, reversed
+    - [51.4234937, -2.6681381]
+    - [51.4226507, -2.6675588]
+    - [51.4220921, -2.6697958]
+    - [51.4234034, -2.6713890]
+  max_alt_m: 50               # SaR R04 site limit — tighter than the global 75 m cap
+  fence_action: rtl           # SaR FENCE_ACTION=1. LAND on a breach here could put it in the SSSI.
+  sitl_home: [51.4234064, -2.6714460, 39, 0]    # Take-Off Location placemark
+
+mission:
+  name: fenswood_survey_test
+  cruise_alt_m: 25            # SaR SEARCH_ALT_M
+  cruise_speed_mps: 4.0       # SaR SEARCH_SPEED_MPS
+  transit_speed_mps: 8.0      # SaR TRANSIT_SPEED_MPS on the corridor
+  survey:
+    spacing_m: 10             # SaR SWATH_WIDTH_M
+    edge_margin_m: 5          # the area is only 1.7 ha; 12 m would eat most of it
+    area_polygon:             # "Survey Area" placemark
+      - [51.4232696, -2.6709483]
+      - [51.4228703, -2.6700454]
+      - [51.4233662, -2.6681693]
+      - [51.4242148, -2.6688098]
+      - [51.4235407, -2.6712778]
+    area2_polygon: []
+
+landing:
+  point: [51.4234064, -2.6714460]               # Take-Off Location
+
+camera:
+  synthetic_targets:          # stand-in "vehicles" inside the survey area for the placeholder detector
+    - {lat: 51.4234500, lon: -2.6700000, cls: CCF, ident: "TEST-CCF-1"}
+    - {lat: 51.4237500, lon: -2.6691000, cls: VT4, ident: "TEST-VT4"}

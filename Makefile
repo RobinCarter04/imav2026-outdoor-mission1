@@ -1,5 +1,5 @@
 # IMAV 2026 Outdoor Mission 1 — common tasks.  `make help` lists targets.
-.PHONY: help setup test test-sitl lint fmt sitl sitl-stop gcs-bridge mission-sim mission-sim-auto plan-sim replay check-config preflight
+.PHONY: help setup test test-sitl lint fmt launch stop sitl sitl-stop gcs-bridge mission-sim mission-sim-auto plan-sim replay check-config preflight
 
 VENV := .venv
 PY   := $(VENV)/bin/python
@@ -27,6 +27,12 @@ fmt:                ## auto-format
 	$(VENV)/bin/ruff format src tests tools
 	$(VENV)/bin/ruff check --fix src tests tools
 
+launch:             ## ONE COMMAND: SITL + mission (+ Mission Planner bridge with GCS=<host>), one Terminal window each
+	./scripts/launch_sim.sh $(if $(GCS),--gcs $(GCS)) $(if $(KML),--kml $(KML)) $(if $(SITE),--site $(SITE)) $(ARGS)
+
+stop:               ## stop SITL, the GCS bridge and the mission
+	./scripts/stop_sim.sh
+
 sitl:               ## start ArduPilot SITL headless (sim/README.md). SPEEDUP=5 WIPE=1 optional
 	./scripts/start_sitl.sh
 
@@ -34,7 +40,7 @@ sitl-stop:          ## stop SITL
 	./scripts/stop_sitl.sh
 
 gcs-bridge:         ## MAVProxy bridge SITL -> Mission Planner in the VM: make gcs-bridge GCS=<host-or-ip>
-	./scripts/mavproxy_gcs_bridge.sh $(or $(GCS),ROBINCARTER17AB.local)
+	./scripts/mavproxy_gcs_bridge.sh $(or $(GCS),ROBINCARTERC2F9.local)
 
 mission-sim:        ## run the mission against SITL with the operator dashboard (http://localhost:5000)
 	$(PY) -m imav_m1.cli run --profile sim

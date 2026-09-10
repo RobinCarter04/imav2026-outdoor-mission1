@@ -2,26 +2,36 @@
 # only what genuinely differs between simulation and the aircraft.
 # Rulebook citations (§) are to docs/rulebook/Rulebook_IMAV2026_V4-1.pdf. TODO = still to confirm.
 
-site:                                  # §5.2 — Haguenau military training ground
-  center: [48.806567024502456, 7.852133729228434]
-  geofence_corners:                    # site geofence §5.2. The flight area (black line) is smaller
-    - [48.80570456695289, 7.84961762660713]    #   and its corners are given on the day.
-    - [48.810842794362294, 7.847237082007214]
-    - [48.81380786901547, 7.861214602971546]
-    - [48.80863939598765, 7.864039635567677]
+site:                         # WHERE we are flying. Selected with --site; the overlay that fills
+  name: imav                  # this in lives in config/sites/<name>.yaml (imav | fenswood).
+  description: null           # Geometry only — the limits and actions stay in `safety:` below.
+  center: null                # [lat, lon] — map centre / fallback reference
+  flight_area: []             # inclusion fence, [[lat, lon], ...] — the boundary we may not leave
+  exclusions: []              # [{name: SSSI, points: [[lat, lon], ...]}] — uploaded as exclusion fences
+  transit_to_survey: []       # optional corridor home -> survey, flown before the first survey line
+  transit_to_home: []         # optional corridor survey -> landing, flown after the last survey line
+  max_alt_m: null             # site ceiling; the EFFECTIVE ceiling is min(this, safety.geofence.max_alt_m)
+  fence_action: null          # null = use safety.geofence.action
+  sitl_home: null             # [lat, lon, alt_m, heading_deg] for scripts/start_sitl.sh
 
 mission:
   name: imav2026_outdoor_m1
   cruise_alt_m: 60            # DECIDE with tools/coverage_calc.py once HFOV is known. Hard limit 80 m AGL (§2)
-  cruise_speed_mps: 10.0      # TODO airframe capability; drives coverage time (WORKING_NOTES §3)
+  cruise_speed_mps: 10.0      # over the survey lines; TODO airframe capability (WORKING_NOTES §3)
+  transit_speed_mps: null     # null = same as cruise; used on the corridors to/from the survey
+  transit:                    # optional corridors, e.g. around an exclusion zone (SaR flew one at Fenswood)
+    to_survey: []             # [[lat, lon], ...] flown at cruise altitude before the first survey line
+    to_home: []               # [[lat, lon], ...] flown after the survey, before the landing waypoint
   survey:
     pattern: lawnmower
     overlap_front: 0.6        # along-track image overlap (mapping)
     overlap_side: 0.4         # across-track overlap; trade against time (WORKING_NOTES §3)
-    area_polygon: []          # Mapping Area 1, 440 × 280 m (§5.4.1) — corners given on the day (§5.2); empty = refuse to run
-    area2_polygon: []         # Mapping Area 2, +440 × 320 m — optional extension (R-03)
+    area_polygon: []          # survey polygon — from the site file, a KML (--kml), or empty = refuse to run
+    area2_polygon: []         # optional second survey area (IMAV Mapping Area 2, R-03)
     entry_heading_deg: null   # null = fly along the longest side
     spacing_m: 35             # fallback line spacing when camera.hfov_deg is unknown (tools/coverage_calc.py)
+    edge_margin_m: 12         # waypoints are inset this far from the area edge (fence margin + GPS error);
+                              # the camera half-footprint (≈25 m at 60 m / 45°) still covers the edge strip
     turn_time_s: 4            # planning estimate per line turn
 
 deliverables:                 # §5.4.1, Tab. 6 — written automatically on landing (E-05)
@@ -51,15 +61,17 @@ operator:                     # dashboard / scripted operator
   trigger_file: /tmp/imav_trigger.txt
   dashboard_host: 0.0.0.0
   dashboard_port: 5000
-  override_timeout_s: 120
+  override_timeout_s: 300     # how long the mission waits, paused and silent, for the pilot to hand
+                              # back AND the operator to press RESUME before it gives up and aborts
   heartbeat_miss_limit: 10
 
 safety:                       # Changed only by a human, on purpose (docs/SAFETY.md). The autopilot's own
   geofence:                   # fence params are the real enforcement — these are what the code checks/loads.
     enabled: true
-    polygon: []               # flight area, on the day. Must lie inside site.geofence_corners
-    max_alt_m: 75             # rule: 80 m AGL (§2). 5 m margin
-    action: land              # §2: leaving the zone → land; further → motor cut
+    polygon: []               # explicit override; normally the fence comes from site.flight_area
+    max_alt_m: 75             # HARD ceiling for every site. IMAV rule: 80 m AGL (§2), 5 m margin.
+    action: land              # §2: leaving the zone → land; further → motor cut. A site may only
+                              # tighten these two: the effective ceiling is min(site, here).
   rtl_alt_m: 40
   battery_failsafe_pct: 25
   link_loss_timeout_s: 5

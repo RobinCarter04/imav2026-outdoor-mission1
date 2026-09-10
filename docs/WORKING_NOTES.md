@@ -21,6 +21,14 @@ Rulebook citations (§x.y) refer to V4 — grep `rulebook/Rulebook_IMAV2026_V4-1
   2. **A table**: `Vehicle | Identification | GPS` in decimal degrees, e.g. `67-CCF-M-ING | 48.8095202 ; 7.8520274` (Tab. 6).
 - Areas: **Mapping Area 1 = 440 × 280 m**; **Mapping Area 2 = +440 × 320 m**. Corner coordinates and
   landing zones are **given on the day** (§5.2) → the mission must accept a polygon as input quickly.
+  **Estimated corners are available now (2026-09-10):** Fig. 19 (p. 27) is a north-up satellite map with
+  the geofence drawn; georeferenced from the four §5.2 corners (fit residual 1 m, 1.45 m/px) every zone was
+  digitised into `sim/areas/haguenau_fig19.kml` (+ `_zones.json`, check image in `rulebook/`), ≈ ±10 m.
+  As drawn: Area 1 = 255 × 461 m (11.75 ha, text says 280 × 440), Area 2 = 14.06 ha (text 14.08 ✔),
+  multirotor take-off/landing square ≈ 23 m at 48.806462, 7.852303, flight zone 27.5 ha. The two Tab. 6
+  sample vehicles fall inside drawn Area 1 (one on the VTOL strip) — they are real test positions.
+  **Area 1 abuts the flight-zone boundary on its north and west sides** → waypoints are inset
+  (`mission.survey.edge_margin_m`, 12 m) so line ends never touch the fence.
 - Vehicles: **8** in total (Tab. 7). Fire brigade: **CCF** (truck) or **VLTT** (light 4×4), and the brigade =
   last 3 letters of the roof registration (`67-CCF-M-ING` → INGwiller); roofs white or yellow. Military:
   **VT4** (4×4), **GBC 180** (truck), **VBL** (light armoured). Fire/military split told on the day.
@@ -139,8 +147,8 @@ count as off-board computation (0.7) or manual action (0.4)?
 - [ ] Map within 5 min of landing → pose-based quick mosaic (seconds) rather than ODM (too slow).
 - [ ] Does arming / starting the mission from the GCS count as an in-mission manual action (A = 0.4)?
 - [ ] Green card, AlphaTango, safety pilot — who, and by when?
-- [ ] Area corners arrive on the day → what is the fastest trustworthy way to get them into config (KML from
-  Mission Planner via `kml_parser.py`?). Rehearse it.
+- [~] Area corners arrive on the day — estimates from Fig. 19 are in `sim/areas/haguenau_fig19.kml` (§1);
+  still rehearse the Mission-Planner-KML → `--kml` path with the official numbers.
 
 ## 8. Proposed schedule (draft — adjust as §7 gets answered)
 | Days | Focus | Exit criterion |

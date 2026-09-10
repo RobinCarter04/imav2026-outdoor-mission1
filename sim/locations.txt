@@ -1,3 +1,8 @@
-# name=lat,lon,alt_m,heading_deg — copy to ~/.config/ardupilot/locations.txt or pass via --custom-location
-# Haguenau military training ground, rulebook V4 §5.2 (altitude ~150 m ASL, approximate)
-IMAV2026=48.806567,7.852134,150,0
+# name=lat,lon,alt_m,heading_deg — SITL start locations, one per site.
+# scripts/launch_sim.sh --site <name> reads site.sitl_home from config/sites/<name>.yaml instead and
+# passes it as SITL_LOC, so this file only matters when running scripts/start_sitl.sh by hand:
+#     SITE=fenswood scripts/start_sitl.sh --fg
+IMAV2026=48.806462,7.852303,150,0
+# Haguenau: multirotor take-off/landing square (rulebook V4 Fig. 19, georeferenced)
+FENSWOOD=51.4234064,-2.6714460,39,0
+# Fenswood Farm: "Take-Off Location" placemark from the SaR AENGM0074.kml

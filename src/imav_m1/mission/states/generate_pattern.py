@@ -7,6 +7,7 @@ No hard-coded coordinates anywhere: everything comes from the area inputs and th
 
 from __future__ import annotations
 
+from ...config import effective_max_alt_m
 from ..items import build_survey_mission
 from ..survey import plan_survey
 from .common import MissionState
@@ -23,8 +24,14 @@ class GeneratePatternState(MissionState):
             self.shared.pop("return_stack", None)
             return self.return_next("IDLE")
         try:
-            plan = plan_survey(area.survey, self.cfg)
             m = self.cfg["mission"]
+            ceiling = effective_max_alt_m(self.cfg)
+            if float(m["cruise_alt_m"]) > ceiling:
+                raise ValueError(
+                    f"cruise_alt_m {m['cruise_alt_m']} m is above the {ceiling:.0f} m ceiling for "
+                    f"site '{area.site or self.cfg['site'].get('name')}'"
+                )
+            plan = plan_survey(area.survey_fly or area.survey, self.cfg)
             landing = area.landing or self.shared.get("home")
             precision = int(self.cfg.get("landing", {}).get("precision", 0))
             items, first, last = build_survey_mission(
@@ -33,6 +40,9 @@ class GeneratePatternState(MissionState):
                 landing,
                 float(m["cruise_alt_m"]),
                 precision,
+                transit_to_survey=area.transit_to_survey,
+                transit_to_home=area.transit_to_home,
+                transit_speed_mps=m.get("transit_speed_mps"),
             )
         except Exception as e:  # noqa: BLE001
             self.shared["last_error"] = f"planning failed: {e}"
@@ -46,6 +56,9 @@ class GeneratePatternState(MissionState):
         self.shared["mission_uploaded"] = False
         geometry = {
             "polygon": [list(p) for p in area.survey],
+            "exclusions": [[list(p) for p in e["points"]] for e in area.exclusions],
+            "transit": [list(p) for p in (area.transit_to_survey + area.transit_to_home)],
+            "fly_polygon": [list(p) for p in (area.survey_fly or area.survey)],
             "fence": [list(p) for p in area.fence],
             "waypoints": [[w.lat, w.lon] for w in plan.waypoints],
             "landing": list(landing) if landing else None,
@@ -54,6 +67,10 @@ class GeneratePatternState(MissionState):
         summary = plan.summary()
         summary["mission_items"] = len(items)
         summary["landing"] = landing
+        summary["site"] = area.site
+        summary["ceiling_m"] = ceiling
+        summary["transit_waypoints"] = len(area.transit_to_survey) + len(area.transit_to_home)
+        summary["exclusions"] = len(area.exclusions)
         self.push("plan", summary)
         self.push("plan_geometry", geometry)
         self.log(f"Plan: {summary}")

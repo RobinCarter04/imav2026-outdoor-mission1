@@ -22,5 +22,10 @@ Where things are in V4:
 | **Mission 1 — Mapping and vehicle identification** | §5.4.1 | 30–33 |
 | **Mission 1 scoring formula** | §5.4.2, Tab. 7 | 34 |
 
+**Fig. 19 georeferenced (2026-09-10):** the p. 27 zone map was georeferenced from the four §5.2 geofence
+corners (1.45 m/px, north-up, 1 m fit residual) and every zone digitised into `sim/areas/haguenau_fig19.kml`
+and `haguenau_fig19_zones.json` (≈ ±10 m). Check image: `fig19_georeferenced_check.jpg` (red = rulebook
+fence back-projected, magenta = detected zones, cyan = flight zone, green = Tab. 6 sample vehicles).
+
 When a new version appears: download it, diff §2, §5.2, §5.4.1–5.4.2 against V4, and record any change
 in `../WORKING_NOTES.md` and `../REQUIREMENTS.md`. Commit the PDFs (small; the history matters).

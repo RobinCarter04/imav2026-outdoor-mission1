@@ -57,3 +57,58 @@ simply the zero-dependency option and is what the placeholder uses.
 .venv/bin/imav-m1 run --profile sim --auto --no-gui          # starts the placeholder automatically
 .venv/bin/python -m imav_m1.detection.placeholder --run-dir data/flights/<run> --targets '[...]'
 ```
+
+---
+
+## Starting your detector alongside the mission
+
+You do not need to know the run directory in advance. The mission keeps a stable pointer to the
+current run:
+
+```
+data/flights/latest  ->  data/flights/2026-09-10_sim_07_mission/
+```
+
+The launcher starts your process for you and passes it in:
+
+```bash
+scripts/launch_sim.sh --detector-cmd 'python3 /path/to/your_detector.py'
+```
+
+That opens a fourth Terminal window with two environment variables set:
+
+| Variable | |
+|---|---|
+| `IMAV_RUN_DIR` | the run directory — `$IMAV_RUN_DIR/detections/cv_mode` and `$IMAV_RUN_DIR/telemetry.jsonl` |
+| `IMAV_DASHBOARD` | base URL of the operator dashboard, for the HTTP option below |
+
+On the aircraft the same thing happens through `./scripts/launch_hardware.sh --detector-cmd '…'`.
+
+## Two equally supported ways to report a detection
+
+**A. Append a line to the file** (no dependencies, works if the dashboard is off):
+
+```python
+import json, os
+with open(os.path.join(os.environ["IMAV_RUN_DIR"], "detections/detections.jsonl"), "a") as f:
+    f.write(json.dumps({"t": 1789050000.0, "lat": 48.8095202, "lon": 7.8520274,
+                        "cls": "CCF", "ident": "67-CCF-M-ING", "conf": 0.87, "id": "veh-3"}) + "\n")
+    f.flush()
+```
+
+**B. POST it to the mission** — same fields, same result:
+
+```bash
+curl -X POST "$IMAV_DASHBOARD/api/detection" -H 'content-type: application/json' \
+     -d '{"lat":48.8095202,"lon":7.8520274,"cls":"CCF","ident":"67-CCF-M-ING","id":"veh-3"}'
+```
+
+`lat`, `lon` and `cls` are required; `t` and `source` are filled in for you. The endpoint appends to
+the very same file, so the dashboard list, the vehicle table and the map behave identically either
+way. Pick whichever suits your code; you can mix them.
+
+## What we do not need to know
+
+How you capture frames, which model you run, how you georeference, or what you do on the Pi. The
+mission only ever reads `detections.jsonl`. Anything with a `lat`, `lon` and `cls` ends up in the
+submission table, so de-duplicate on your side and only append what you would submit.

@@ -37,6 +37,14 @@ def create_run_dir(cfg: dict[str, Any], project_root: Path, name: str = "mission
     n = 1 + sum(1 for p in base.iterdir() if p.name.startswith(f"{today}_{kind}_"))
     run_dir = base / f"{today}_{kind}_{n:02d}_{name}"
     run_dir.mkdir()
+    # Stable path for anything started separately (the detector, log tails): data/flights/latest
+    latest = base / "latest"
+    try:
+        if latest.is_symlink() or latest.exists():
+            latest.unlink()
+        latest.symlink_to(run_dir.name)
+    except OSError:
+        pass  # a symlink is a convenience, never a requirement
     return run_dir
 
 

@@ -20,15 +20,16 @@ gated checklist.
 | [docs/SIM_TO_REAL.md](docs/SIM_TO_REAL.md) | Gate checklist: what must be true before code touches the aircraft |
 | [docs/SAFETY.md](docs/SAFETY.md) | Non-negotiable safety rules and emergency procedures |
 
-## Quick start (laptop, simulation) — full runbook in [sim/README.md](sim/README.md)
+## Quick start (laptop, simulation) — full runbook in [docs/LAUNCH.md](docs/LAUNCH.md)
 ```bash
-make setup                 # venv + editable install
-make test                  # unit tests (no SITL) — must be green before any hardware work
-make sitl                  # terminal 1: ArduCopter SITL, headless, at Haguenau
-make gcs-bridge GCS=<vm>   # terminal 2 (optional): Mission Planner in the Parallels VM spectates (UDP 14550)
-make mission-sim           # terminal 3: pymavlink mission + operator dashboard http://localhost:5000
-make mission-sim-auto      #   …or fully scripted, no clicking, exits with the results written
+make setup                        # once: venv + editable install
+make test                         # unit tests (no SITL) — green before any hardware work
+make launch                       # SITL + mission dashboard, each in its own Terminal window
+make launch GCS=<vm-host-or-ip>   # …and Mission Planner in the Parallels VM spectating
+make stop                         # stop everything
 ```
+Then in the dashboard at http://localhost:5000: **Setup → Preflight → tick "safety pilot ready" → START.**
+On the aircraft it is one SSH session and one script — see [docs/LAUNCH.md](docs/LAUNCH.md) §2.
 
 ## Layout
 ```

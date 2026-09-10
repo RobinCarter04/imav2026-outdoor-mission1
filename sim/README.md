@@ -13,6 +13,12 @@ talks to the Cube through the MAVProxy bridge on the aircraft.
  └─────────────────────────────┘   tcp 5763 (SERIAL2)     scripts/mavproxy_gcs_bridge.sh      terminal 2
 ```
 
+## 0. Shortcut
+`scripts/launch_sim.sh` (or `make launch GCS=<vm>`) does sections 1-3 below in one command:
+it opens a Terminal window per stage, waits for SITL's port, lets GPS settle, then starts the
+mission and the dashboard. See [../docs/LAUNCH.md](../docs/LAUNCH.md). The manual steps below
+are still what it runs, and what to fall back on when something misbehaves.
+
 ## 0. One-time
 - A built SITL binary exists at
   `~/Desktop/MSc Aerial Robotics/Group Project Assignment/SITL/ardupilot/build/sitl/bin/arducopter`
@@ -35,10 +41,10 @@ before arming (the preflight page shows the checks going green).
 ## 2. Terminal 2 — Mission Planner in the Parallels VM (spectate)
 Option A (proven on the SaR project): MAVProxy bridge → UDP into the VM.
 ```bash
-scripts/mavproxy_gcs_bridge.sh ROBINCARTER17AB.local     # or the VM's IP (ipconfig in Windows)
+scripts/mavproxy_gcs_bridge.sh ROBINCARTERC2F9.local     # or the VM's IP (ipconfig in Windows)
 ```
 In Mission Planner: connection type **UDP**, port **14550**, Connect. (Same as flying days: the Pi's
-MAVProxy pushed `udp:ROBINCARTER17AB.local:14550`.)
+MAVProxy pushed `udp:ROBINCARTERC2F9.local:14550`.)
 
 Option B (no MAVProxy): connection type **TCP**, host = the Mac as seen from the VM
 (`ifconfig vnic0` on the Mac, usually `10.211.55.2` with Parallels shared networking), port **5763**.
@@ -79,6 +85,22 @@ make plan-sim                     offline plan preview
 `config/sim.yaml` carries a 440 × 280 m rectangle (Mapping Area 1 size) centred on the rulebook site
 fence and three synthetic "vehicles" for the placeholder detector; the fence is the §5.2 site geofence
 because no flight-area polygon is known yet. Replace with `--kml` on the day.
+
+## 5b. Taking over as safety pilot in SITL — read this first
+
+Raw SITL starts with the **simulated throttle stick at minimum**. Selecting LOITER, ALT_HOLD or
+POSHOLD therefore commands a full descent and the aircraft lands and disarms within seconds. It is
+an artefact of the simulator's fake RC, not of the mission code, and it does not happen on the real
+aircraft where a pilot is holding the stick.
+
+Two ways to take over cleanly:
+
+| | |
+|---|---|
+| **GUIDED** (easiest) | ignores the sticks entirely, holds position and altitude. The mission treats it exactly as a pilot override: it pauses, and the RESUME button unlocks |
+| **LOITER**, as on the real aircraft | first run `scripts/sitl_hold_sticks.sh` in a spare window; it holds the simulated sticks centred with throttle at mid, so LOITER hovers |
+
+Either way the mission pauses and sends nothing until the operator presses RESUME.
 
 ## 6. Fault scenarios (SIM_TO_REAL stage 2) — from a MAVProxy console on port 5760
 ```

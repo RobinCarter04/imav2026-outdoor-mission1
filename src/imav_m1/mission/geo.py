@@ -89,6 +89,51 @@ def longest_edge_heading_deg(polygon: list[LatLon]) -> float:
     return best_bearing % 180.0
 
 
+def inset_polygon(polygon: list[LatLon], margin_m: float) -> list[LatLon]:
+    """Shrink a CONVEX polygon by `margin_m`: every edge is moved inward along its normal.
+
+    Keeps survey waypoints a margin inside the flight zone (the camera footprint still covers the
+    edge strip). Raises ValueError if the margin swallows the polygon.
+    """
+    if margin_m <= 0:
+        return list(polygon)
+    ref = centroid(polygon)
+    pts = [to_local(lat, lon, ref) for lat, lon in polygon]
+    n = len(pts)
+    signed = sum(
+        pts[i][0] * pts[(i + 1) % n][1] - pts[(i + 1) % n][0] * pts[i][1] for i in range(n)
+    )
+    sign = (
+        1.0 if signed > 0 else -1.0
+    )  # counter-clockwise → inward normal is to the left of each edge
+    lines = []
+    for i in range(n):
+        (x1, y1), (x2, y2) = pts[i], pts[(i + 1) % n]
+        dx, dy = x2 - x1, y2 - y1
+        length = math.hypot(dx, dy)
+        if length < 1e-9:
+            continue
+        nx, ny = -dy / length * sign, dx / length * sign
+        lines.append(((x1 + nx * margin_m, y1 + ny * margin_m), (dx, dy)))
+    out = []
+    for i in range(len(lines)):
+        (p, d1), (q, d2) = lines[i - 1], lines[i]
+        det = -d1[0] * d2[1] + d2[0] * d1[1]
+        if abs(det) < 1e-9:
+            continue
+        t = ((q[0] - p[0]) * (-d2[1]) + d2[0] * (q[1] - p[1])) / det
+        out.append((p[0] + t * d1[0], p[1] + t * d1[1]))
+    if len(out) < 3:
+        raise ValueError(f"inset of {margin_m} m leaves no polygon")
+    m = len(out)
+    new_signed = sum(
+        out[i][0] * out[(i + 1) % m][1] - out[(i + 1) % m][0] * out[i][1] for i in range(m)
+    )
+    if new_signed * signed <= 0:
+        raise ValueError(f"inset of {margin_m} m is larger than the polygon")
+    return [to_latlon(x, y, ref) for x, y in out]
+
+
 def rectangle(
     center: LatLon, width_m: float, height_m: float, heading_deg: float = 0.0
 ) -> list[LatLon]:

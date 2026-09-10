@@ -1,6 +1,6 @@
 """Command-line entry points.
 
-imav-m1 check-config --profile sim        print the merged config
+imav-m1 check-config --profile sim [--site imav|fenswood]   print the merged config
 imav-m1 plan --profile sim [--kml f] [--out d]
       offline: plan the survey, write a preview SVG + summary
 imav-m1 run --profile sim [--kml f] [--auto] [--no-gui] [--detector placeholder|none] [--name x]
@@ -19,7 +19,7 @@ import threading
 import time
 from pathlib import Path
 
-from .config import load_config
+from .config import list_sites, load_config
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
@@ -30,16 +30,22 @@ def _plan(args) -> int:
     from .mission.items import build_survey_mission
     from .mission.survey import plan_survey
 
-    cfg = load_config(args.profile)
+    cfg = load_config(args.profile, args.site)
     area = load_area_inputs(cfg, args.kml)
-    plan = plan_survey(area.survey, cfg)
+    plan = plan_survey(area.survey_fly or area.survey, cfg)
     landing = area.landing
     items, first, last = build_survey_mission(
-        plan.waypoints, cfg["mission"]["cruise_speed_mps"], landing, cfg["mission"]["cruise_alt_m"]
+        plan.waypoints,
+        cfg["mission"]["cruise_speed_mps"],
+        landing,
+        cfg["mission"]["cruise_alt_m"],
+        transit_to_survey=area.transit_to_survey,
+        transit_to_home=area.transit_to_home,
+        transit_speed_mps=cfg["mission"].get("transit_speed_mps"),
     )
     out = Path(args.out or (PROJECT_ROOT / "data" / "plans"))
     out.mkdir(parents=True, exist_ok=True)
-    svg = out / f"plan_{args.profile}.svg"
+    svg = out / f"plan_{cfg['site'].get('name', args.profile)}.svg"
     write_map_svg(
         svg,
         area.survey,
@@ -50,6 +56,7 @@ def _plan(args) -> int:
         f"Survey plan ({args.profile}) — {plan.n_lines} lines, {plan.length_m / 1000:.1f} km, ~{plan.est_time_s / 60:.1f} min",  # noqa: E501
     )
     summary = {
+        "site": cfg["site"].get("name"),
         "area": area.summary(),
         "plan": plan.summary(),
         "mission_items": len(items),
@@ -69,10 +76,12 @@ def _run(args) -> int:
     from .mission.telemetry_log import TelemetryLog
     from .vehicle.mavlink_vehicle import MavlinkVehicle
 
-    cfg = load_config(args.profile)
+    cfg = load_config(args.profile, args.site)
+    if getattr(args, "connection", None):
+        cfg["vehicle"]["connection"] = args.connection
     run_dir = create_run_dir(cfg, PROJECT_ROOT, args.name)
     write_run_yaml(run_dir, cfg, PROJECT_ROOT, sys.argv)
-    print(f"[imav-m1] run dir: {run_dir}")
+    print(f"[imav-m1] run dir: {run_dir}   site: {(cfg.get('site') or {}).get('name')}")
 
     status = SharedStatus()
     vehicle = MavlinkVehicle(cfg, status)
@@ -190,9 +199,15 @@ def _scripted_operator(status, kml: str | None) -> None:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="imav-m1")
     sub = parser.add_subparsers(dest="cmd", required=True)
+    sites = list_sites()
     for name in ("check-config", "plan", "run", "replay"):
         p = sub.add_parser(name)
         p.add_argument("--profile", required=True, choices=["sim", "hardware"])
+        p.add_argument(
+            "--site",
+            choices=sites or None,
+            help=f"where we are flying: {' | '.join(sites)} (default: config/base.yaml site.name)",
+        )
         if name in ("plan", "run"):
             p.add_argument(
                 "--kml", help="areas KML (Mapping Area 1 / Flight Area / Landing placemarks)"
@@ -207,9 +222,13 @@ def main(argv: list[str] | None = None) -> int:
             p.add_argument("--detector", choices=["placeholder", "none"], default="placeholder")
             p.add_argument("--name", default="mission")
             p.add_argument("--port", type=int)
+            p.add_argument(
+                "--connection",
+                help="override vehicle.connection (e.g. tcp:127.0.0.1:5772 for SITL -I1)",
+            )
     args = parser.parse_args(argv)
     if args.cmd == "check-config":
-        print(json.dumps(load_config(args.profile), indent=2, default=str))
+        print(json.dumps(load_config(args.profile, args.site), indent=2, default=str))
         return 0
     if args.cmd == "plan":
         return _plan(args)
