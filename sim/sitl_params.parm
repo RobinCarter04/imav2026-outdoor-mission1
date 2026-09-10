@@ -1,0 +1,6 @@
+# Extra SITL defaults for this project (appended to ArduPilot's copter.parm / copter-hexa.parm by
+# scripts/start_sitl.sh). Change → restart with WIPE=1 so a stale eeprom does not shadow them.
+# Big simulated battery: the stock SITL pack runs flat in ~8 sim-minutes, which trips our 25 %
+# battery abort halfway through a Mapping-Area-1-sized survey (seen 2026-09-08).
+BATT_CAPACITY   30000
+SIM_BATT_CAP_AH 30

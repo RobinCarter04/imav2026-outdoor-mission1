@@ -1,0 +1,9 @@
+# Hardware profile — Raspberry Pi 5 on the aircraft.
+# RULE: values under `safety:` here may only be MORE conservative than base.yaml (a unit test checks).
+# Changing this file requires a human decision and a PROGRESS_LOG entry (docs/SAFETY.md).
+vehicle:
+  connection: udp:127.0.0.1:14551  # MAVProxy bridge output on the Pi (docs/HARDWARE.md)
+camera:
+  source: picamera2
+detection:
+  backend: tflite

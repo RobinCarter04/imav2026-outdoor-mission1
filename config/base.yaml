@@ -1,0 +1,97 @@
+# Base configuration — shared by every profile. Profile overlays (sim.yaml / hardware.yaml) override
+# only what genuinely differs between simulation and the aircraft.
+# Rulebook citations (§) are to docs/rulebook/Rulebook_IMAV2026_V4-1.pdf. TODO = still to confirm.
+
+site:                                  # §5.2 — Haguenau military training ground
+  center: [48.806567024502456, 7.852133729228434]
+  geofence_corners:                    # site geofence §5.2. The flight area (black line) is smaller
+    - [48.80570456695289, 7.84961762660713]    #   and its corners are given on the day.
+    - [48.810842794362294, 7.847237082007214]
+    - [48.81380786901547, 7.861214602971546]
+    - [48.80863939598765, 7.864039635567677]
+
+mission:
+  name: imav2026_outdoor_m1
+  cruise_alt_m: 60            # DECIDE with tools/coverage_calc.py once HFOV is known. Hard limit 80 m AGL (§2)
+  cruise_speed_mps: 10.0      # TODO airframe capability; drives coverage time (WORKING_NOTES §3)
+  survey:
+    pattern: lawnmower
+    overlap_front: 0.6        # along-track image overlap (mapping)
+    overlap_side: 0.4         # across-track overlap; trade against time (WORKING_NOTES §3)
+    area_polygon: []          # Mapping Area 1, 440 × 280 m (§5.4.1) — corners given on the day (§5.2); empty = refuse to run
+    area2_polygon: []         # Mapping Area 2, +440 × 320 m — optional extension (R-03)
+    entry_heading_deg: null   # null = fly along the longest side
+    spacing_m: 35             # fallback line spacing when camera.hfov_deg is unknown (tools/coverage_calc.py)
+    turn_time_s: 4            # planning estimate per line turn
+
+deliverables:                 # §5.4.1, Tab. 6 — written automatically on landing (E-05)
+  table_path: results/mission1_vehicles.csv   # Vehicle | Identification | lat ; lon (decimal degrees)
+  map_path: results/mission1_map.png
+  submit_deadline_s: 300      # ≤ 5 min after landing for R = 2 (Tab. 7)
+
+landing:                      # §5.2.1 / §5.3.3 — zone + ArUco given on the day
+  point: null                 # [lat, lon] — NAV_LAND target; null = home (first GPS fix at startup)
+  precision: 0                # NAV_LAND p2: 0 off (placeholder), 1 opportunistic, 2 required (R-12 later)
+  timeout_s: 600
+  zone_polygon: []
+  aruco: {dictionary: 5x5, id: null, size_m: 0.8}
+
+preflight:                    # thresholds for PREFLIGHT_CHECK (ported from SaR pre_auto_check)
+  min_satellites: 8
+  min_gps_fix: 3
+  min_battery_pct: 40
+  altitude_tolerance_m: 3.0
+  arm_timeout_s: 15
+  takeoff_timeout_s: 90
+  auto_start_timeout_s: 180
+  count_query_interval_s: 15
+
+operator:                     # dashboard / scripted operator
+  tick_s: 0.5
+  trigger_file: /tmp/imav_trigger.txt
+  dashboard_host: 0.0.0.0
+  dashboard_port: 5000
+  override_timeout_s: 120
+  heartbeat_miss_limit: 10
+
+safety:                       # Changed only by a human, on purpose (docs/SAFETY.md). The autopilot's own
+  geofence:                   # fence params are the real enforcement — these are what the code checks/loads.
+    enabled: true
+    polygon: []               # flight area, on the day. Must lie inside site.geofence_corners
+    max_alt_m: 75             # rule: 80 m AGL (§2). 5 m margin
+    action: land              # §2: leaving the zone → land; further → motor cut
+  rtl_alt_m: 40
+  battery_failsafe_pct: 25
+  link_loss_timeout_s: 5
+  require_operator_arm: true  # arming needs an explicit trigger; never automatic (SAFETY.md, E-09)
+
+vehicle:
+  connection: null            # set per profile
+  baud: 921600
+  heartbeat_timeout_s: 10
+  mode_change_timeout_s: 10   # from SaR experience with the MAVProxy bridge
+  autopilot_component_id: 1   # only trust heartbeats from MAV_COMP_ID_AUTOPILOT1
+
+camera:
+  model: imx296
+  width: 1456
+  height: 1088
+  hfov_deg: null              # TODO from calibration; drives line spacing, GSD and georef
+  intrinsics_file: hardware/calibration/imx296_intrinsics.yaml
+  mount_yaw_offset_deg: 0.0
+  source: null                # per profile: picamera2 | replay | synthetic
+
+detection:
+  backend: tflite             # tflite | ncnn | ultralytics
+  model_path: data/models/TODO_vehicle_model.tflite   # the SaR person model does not apply (WORKING_NOTES §5)
+  classes: [CCF, VLTT, VT4, GBC180, VBL]              # §5.4.1 vehicle types; brigade letters handled separately
+  conf_threshold: 0.5
+  input_size: 640
+
+mapping:
+  capture_interval_s: null    # null = derive from overlap_front, speed and footprint (E-06)
+  output_dir: images
+
+logging:
+  dir: data/flights
+  level: INFO

@@ -1,0 +1,43 @@
+[project]
+name = "imav-m1"
+version = "0.1.0"
+description = "IMAV 2026 Outdoor Mission 1 - autonomous mapping and detection (ArduPilot + Raspberry Pi)"
+requires-python = ">=3.10"
+dependencies = [
+  "pymavlink",
+  "numpy<2",                 # TFLite runtime on the Pi still wants numpy 1.x (matches SaR project)
+  "opencv-python-headless",
+  "pyyaml",
+  "pyproj",
+  "flask",                   # operator dashboard (ported from SaR gui.py)
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-cov", "ruff", "mypy", "types-PyYAML"]
+sitl = ["MAVProxy"]
+detect = ["ultralytics"]     # laptop-side training/eval only; the Pi uses tflite-runtime / ai-edge-litert
+
+[project.scripts]
+imav-m1 = "imav_m1.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/imav_m1/ops/dashboard.py" = ["E501"]   # inline HTML/JS operator page
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["sitl: requires a running ArduPilot SITL (run with: pytest -m sitl)"]
+addopts = "-m 'not sitl'"

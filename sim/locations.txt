@@ -1,0 +1,3 @@
+# name=lat,lon,alt_m,heading_deg — copy to ~/.config/ardupilot/locations.txt or pass via --custom-location
+# Haguenau military training ground, rulebook V4 §5.2 (altitude ~150 m ASL, approximate)
+IMAV2026=48.806567,7.852134,150,0

@@ -1,0 +1,50 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+build/
+dist/
+
+# ---- Flight data, logs, models (large / per-run; keep READMEs + .gitkeep) ----
+data/flights/*
+!data/flights/.gitkeep
+data/datasets/*
+!data/datasets/.gitkeep
+data/models/*
+!data/models/.gitkeep
+!data/models/MANIFEST.md
+*.tlog
+*.tlog.raw
+*.BIN
+*.bin
+*.tflite
+*.onnx
+*.pt
+*.mp4
+*.MOV
+*.MP4
+
+# ---- ArduPilot SITL runtime junk ----
+sim/runtime/
+logs/
+terrain/
+eeprom.bin
+mav.parm
+mav.tlog*
+*.parm.bak
+
+# ---- OS / editors ----
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# ---- Secrets ----
+.env
+*.pem

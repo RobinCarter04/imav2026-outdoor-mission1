@@ -1,0 +1,898 @@
+
+
+===== PAGE 1 =====
+IMA V 2026 Competition Rules for Indoor and Outdoor
+Competitions
+Thomas Pavot & Renaud Kiefer
+September 21 - 25, 2026
+IMAV rules book versions date modifications
+version V0 March 4 2026 first version
+version V1 April 20 2026
+version V2 June 18 2026
+version V2.1 June 29 2026
+version V3 July 22 2026
+version V4 September 1 2026 modifications in red
+1
+
+===== PAGE 2 =====
+About
+This is the official rule book, originally intended for the IMAV 2026.
+This rulebook was elaborated in collaboration with the international committee members and
+the local organizing committee.
+The General Chair, Renaud Kiefer, of the IMAV 2026 served as Editor of this rule book and its
+future editions due to amendments.
+Copyright Notice
+All images and text in this document may be referred to, mentioned, totally or partially reproduced
+under strict citation as follows:
+Kiefer, R., Pavot, T.(Ed) (2026). “IMAV 2026 Competition Rules for Indoor and Outdoor
+Competitions”. 17th International Micro Air Vehicle Conference and Competition. INSA Stras-
+bourg, Strasbourg, France. September, 2026.
+2
+
+===== PAGE 3 =====
+International IMA V Committee
+•Bart Remes (TU Delft)
+•Ben Chen (CUHK)
+•Christophe De Wagter (TU Delft)
+•Dieter Moormann (RWTH)
+•Gautier Hattenberger (ENAC)
+•Guido de Croon (TU Delft)
+•Hector Garcia De Marina (UCM)
+•Jean-Marc Moschetta (ISAE-SUPAERO)
+•Jos´ e Martinez-Carranza (INAOE)
+•Leandro Lustosa (ISAE-SUPAERO)
+•Mohamed Abdulghani (RMIT)
+•Murat Bronz (ENAC)
+•Pascual Campoy (UPM)
+•Renaud Kiefer (INSA)
+•Simon Watkins (RMIT)
+•Thipyopas Chinnapat (KU)
+•Tom Richardson (Univ. of Bristol)
+Organizing committee
+•General Chair : Renaud Kiefer
+•Conference Chair : Sylvain Durand
+•Indoor Competition Chairs : Renaud Kiefer & Thomas PAVOT & Caio FONSECA
+•Outdoor Competition Chairs : Renaud Kiefer & Thomas PAVOT
+•Sponsors Chair : Edouard Laroche
+3
+
+===== PAGE 4 =====
+Contents
+1 Foreword 6
+2 General rules and Safety 6
+2.1 Frequency band . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 7
+2.2 Competitions format . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 7
+3 Location 8
+3.1 Indoor event location . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 9
+3.2 Outdoor event location . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10
+4 Indoor Competition rules 12
+4.1 Context - Indoor Competition . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 12
+4.2 Field - Indoor Competition . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 13
+4.2.1 Precision landing, Accumulation of missions . . . . . . . . . . . . . . . . . . 15
+4.3 Scoring - Indoor Competition . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 17
+4.3.1 Mission Completion Score (up to 7 points) . . . . . . . . . . . . . . . . . . . . 17
+4.3.2 Mass Factor (Capable of doubling the 7 points) . . . . . . . . . . . . . . . . . 17
+4.3.3 Landing Bonus (up to 2 points) . . . . . . . . . . . . . . . . . . . . . . . . . . 17
+4.3.4 Multi-Mission Bonus (up to 2 points) . . . . . . . . . . . . . . . . . . . . . . 17
+4.3.5 Self-Made Drone Factor (up to 2 points) . . . . . . . . . . . . . . . . . . . . . 17
+4.3.6 Clarification on Bonus Accumulation . . . . . . . . . . . . . . . . . . . . . . . 17
+4.3.7 Additional Information . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 18
+4.4 Missions - Indoor Competition . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 18
+4.4.1 Mission 1 - Obstacle course - Indoor Competition . . . . . . . . . . . . . . . . 18
+4.4.2 Scoring - Mission 1 - Obstacle course - Indoor Competition . . . . . . . . . . 19
+4.4.3 Mission 2 - Inspect a dark room - Indoor Competition . . . . . . . . . . . . . 20
+4.4.4 Scoring - Mission 2 - Inspect a dark room - Indoor Competition . . . . . . . . 20
+4.4.5 Mission 3 - Dropping on hot spot - Indoor Competition . . . . . . . . . . . . 22
+4.4.6 Scoring - Mission 3 - Dropping on hot spot - Indoor Competition . . . . . . . 23
+4.4.7 Mission 4 - Wind turbine inspection - Indoor Competition . . . . . . . . . . . 24
+4.4.8 Scoring - Mission 4 - Wind turbine inspection - Indoor Competition . . . . . 24
+5 Outdoor Competition rules 26
+5.1 Context - Outdoor Competition . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 26
+5.2 Field - Outdoor Competition . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 26
+5.2.1 Precision landing . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 27
+5.3 Scoring - Outdoor Competition . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 29
+5.3.1 Mission Completion Score (up to 8 points) . . . . . . . . . . . . . . . . . . . . 29
+5.3.2 Mass Factor (Capable of doubling the 8 points) . . . . . . . . . . . . . . . . . 29
+5.3.3 Landing Bonus (up to 2 points) . . . . . . . . . . . . . . . . . . . . . . . . . . 29
+5.3.4 Self-Made Drone Factor (up to 2 points) . . . . . . . . . . . . . . . . . . . . . 29
+5.3.5 Additional Information . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 29
+5.4 Missions - Outdoor Competition . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 30
+5.4.1 Mission 1 - Mapping and vehicule identification - Outdoor Competition . . . 30
+5.4.2 Scoring - Mission 1 - Outdoor Competition . . . . . . . . . . . . . . . . . . . 34
+5.4.3 Mission 2 - Fire detection - Outdoor Competition . . . . . . . . . . . . . . . . 35
+5.4.4 Scoring - Mission 2 - Outdoor Competition . . . . . . . . . . . . . . . . . . . 35
+4
+
+===== PAGE 5 =====
+5.4.5 Mission 3 - Collect and drop water - Outdoor Competition . . . . . . . . . . 36
+5.4.6 Scoring - Mission 3 - Outdoor Competition . . . . . . . . . . . . . . . . . . . 36
+5.4.7 Mission 4 - Drop a first aid kit on a mannequin with ”dead man” device -
+Outdoor Competition . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 37
+5.4.8 Scoring - Mission 4 - Outdoor Competition . . . . . . . . . . . . . . . . . . . 37
+5
+
+===== PAGE 6 =====
+1 Foreword
+The International Micro Air Vehicle Conference and Competition (IMAV) is a must-attend event for
+the international community dedicated to autonomous micro-drones. Each year, this unique event
+brings together researchers, engineers, students, and manufacturers with a common goal: to advance
+research and innovation in a rapidly changing field.
+In September 2026, the 17th edition of IMAV will be held in Strasbourg, in the heart of Europe,
+with a focus on rescue operations management. Through indoor and outdoor competitions inspired
+by real-life scenarios, and scientific conferences, IMAV 2026 will highlight the technological challenges
+related to the autonomy, lightness, navigation, and robustness of small drones.
+Supported by INSA Strasbourg and the ICube laboratory, in close collaboration with the SIS67
+fire department and the 2nd Hussards Regiment of the army this event aims to be a place for
+exchange, knowledge transfer, and international cooperation. It offers young researchers and students
+a unique opportunity to test their work against real-world requirements, while promoting dialogue
+with the industrial world.
+IMAV 2026 thus aims to promote international scientific excellence and actively contribute to
+the future of autonomous drones serving society.
+2 General rules and Safety
+Participation in the IMAV 2026 indoor and outdoor competitions is conditional upon obtaining a
+green card for each of the drones entered. This validation, carried out during the training day,
+certifies compliance with safety requirements, the proper functioning of the systems, and the teams’
+operational control of the drones. Each drone must therefore be individually certified in order to be
+authorized to fly in the competition areas, ensuring the smooth running of the events and the safety
+of all participants and supervisors.
+•The maximum takeoff weight of any MAVs must not exceed 5 kg, with a maximum wingspan
+of 3 meters for the outdoor competition and 3 kg for the indoor competition. These weight
+limits apply to each drone ready to fly, including batteries and payload.
+•A kill switch is mandatory for each MAV on the remote control.
+•For the outdoor competition, the maximum flight altitude is 80 m (approx. 262 feet) above
+Ground
+•For the outdoor competition, the maximum number of drones that can fly at the same time
+will be limited to 5.
+•For the indoor competition, drones that can fly at the same time will be limited to 3.
+•All flights must be performed automatically for a mission to be validated. An autonomy factor
+A will be assigned to each mission.
+–A= 0.4 if an action is performed during the mission (mode change, action on a switch or
+on the ground station etc.).
+–A= 0.7 If calculations or processing (image processing, flight path planning etc..) are
+performed remotely on a PC rather than on the drone itself.
+–A= 1 if no action is performed during the mission (all computation are done onboard).
+6
+
+===== PAGE 7 =====
+•All MAVs must remain within designated flight zones; if a MAV strays beyond these zones,
+it is required to activate a land measure, and finally, if the drone goes too far, it must cut its
+engines.
+•Failure to comply with any of these safety measures will lead to penalties or disqualification.
+All outdoor pilots must complete the AlphaTango online qualification and provide proof of com-
+pletion before they are allowed to fly. This is a French requirement. https://alphatango.aviation-
+civile.gouv.fr/login.jsp
+2.1 Frequency band
+The following frequency bands are allowed in France in table 1:
+Frequency Band Power Limit
+26.81 - 27.195 MHz 100 mW
+34.995 - 35.055 MHz 100 mW
+40.66 - 40.70 MHz 100 mW
+41.055 - 41.205 MHz 100 mW
+72.2 - 72.5 MHz 100 mW
+433.05 - 434.79 MHz 10 mW
+863 - 868 MHz 25 mW
+2.4 - 2.4835 GHz 25 mW
+5.725 - 5.875 GHz 25 mW
+Table 1: Frequency band authorised in France
+For more detailed information please read:
+https://www.anfr.fr/en/home
+Failure to abide by the boundaries and frequencies will lead to a severe penalty and disqualifica-
+tion.
+2.2 Competitions format
+Participation in the competition is subject to obtaining a mandatory “Green Card” during the
+training day, certifying compliance with safety regulations and proper operational control of the
+drones.
+During the competition, each team will be required to complete four missions inspired by real-
+world applications. Teams will have a 30-minute time slot to validate as many missions as possible,
+with a pause allowed within this period. Each team will have 10 minutes to prepare before their
+turn begins (while the previous team completes its mission). All flights must be fully autonomous,
+with the presence of a safety pilot. The use of multiple drones operating in parallel is permitted.
+A mission is considered successfully validated once the drone has safely returned to its designated
+landing area.
+Regarding the scoring system, the competitions have been designed so that each mission has the
+same number of points.
+7
+
+===== PAGE 8 =====
+3 Location
+IMAV 2026 will take place at several locations in the Strasbourg metropolitan area Fig.1. The
+outdoor competition will be held on military grounds in Haguenau, while the indoor competition
+and scientific conference will be held at INSA Strasbourg.
+Figure 1: Map of Strasbourg in the heart of Europe and in eastern France
+8
+
+===== PAGE 9 =====
+3.1 Indoor event location
+The IMAV 2026 indoor competition will take place in the lobby of INSA Strasbourg Fig.2. This
+central and accessible location will provide the ideal conditions for the smooth running of the events,
+while also promoting the visibility of the competitions Fig.3.
+Figure 2: Facade of INSA Strasbourg
+Figure 3: Entrance hall of INSA Strasbourg
+Access is easy via the Strasbourg transport network (CTS: https://www.cts-strasbourg.eu/fr/se-
+deplacer/recherche-horaire/), getting off at the ”Universit´ e” stop.
+Address :
+INSA Strasbourg
+24 boulevard de la victoire 67000 Strasbourg
+Map: https://maps.app.goo.gl/ag7SHYZeh5VR9mwb7
+9
+
+===== PAGE 10 =====
+3.2 Outdoor event location
+The IMAV 2026 outdoor competition will take place on the Haguenau military training ground
+under the supervision of the 2nd Hussards Regiment Fig.4a. This terrain offers ideal conditions for
+implementing forest fire and rescue response scenarios in collaboration with the SIS67 fire department
+Fig.4b .
+(a) Emblem of the 2nd Hussards Regiment
+ (b) Emblem of the SIS 67 firefighters
+The military training ground is located next to the town of Haguenau, about 45 minutes by car
+from Strasbourg Fig.5. A bus will be available for participants on the test and competition day,
+departing from INSA Strasbourg.
+As the training ground is military property, access to the flight zone and the field will be regulated
+and monitored. Soldiers may carry out equipment checks. Smoking and littering are also prohibited
+on military grounds.
+Address :
+Figure 5: Map showing how to get from Strasbourg to the Haguenau military camp
+Haguenau military camp
+Quartier Estienne, Rue Kaltenhouse, 67500 Haguenau
+10
+
+===== PAGE 11 =====
+Map: https://maps.app.goo.gl/rZncjcu7rvbdzWq36
+11
+
+===== PAGE 12 =====
+4 Indoor Competition rules
+4.1 Context - Indoor Competition
+The indoor competition events are inspired by firefighters’ training courses. We have added a building
+inspection event, a hot spot search event, a small parcel delivery event and a wind turbine compliance
+check event. The aim is to assess the ability of drones to operate in confined and congested spaces
+by combining inspection and surveillance missions.
+The indoor missions simulate different phases :
+1. Navigating an obstacle course, representing entry through a window and progression through
+a damaged environment.
+2. Dropping a specific object into a box representing a hot spot area.
+3. Inspecting a closed room and identifying the number of babies inside.
+4. Inspecting a wind turbine blade to make ground contact, illustrating a technical inspection
+mission in a complex environment.
+5. Precision landing on fixed or moving platform.
+Through these scenarios, IMAV 2026 highlights the importance of the autonomy, precision, and
+adaptability of drones, while strengthening the link between scientific research and concrete appli-
+cations in the service of civil security.
+Teams are permitted to install beacons in the workspace to help them navigate (UWB beacons
+or other types of beacons, etc.). However, the use of such devices will result in a reduction of the
+autonomy factor to 0.7.
+A Self-made factor drone design points will be added for drones with more than
+50% of their design (mechanical and/or electronic) completed. These points will be
+awarded based on the technical document submitted by each team.
+12
+
+===== PAGE 13 =====
+4.2 Field - Indoor Competition
+The indoor competition will take place in the main entrance hall of INSA Strasbourg, ensuring high
+visibility for the event. This central location will allow both staff and students to engage with and
+enjoy the competition.
+The entrance hall has a ceiling height of 7.90 m (Fig. 3). A flight arena measuring 14 m in
+length, 7 m in width, and 4 m in height will be installed, allowing drones to operate safely within a
+controlled environment (Fig. 6).
+Figure 6: Reproduction of the flight cage for indoor competition
+The top view layout is shown in Fig. 7.
+To improve navigation, textured flooring (flower wallpaper) is added under the obstacle course
+and under the two side passages. The photo of the wallpaper is shown in the Fig.8.
+13
+
+===== PAGE 14 =====
+Figure 7: Reproduction of the flight cage for indoor competition from above
+Figure 8: Wallpaper used for the ground texture
+14
+
+===== PAGE 15 =====
+4.2.1 Precision landing, Accumulation of missions
+The precision landing mission is not mandatory but will earn points for missions 1 to 3: Each time
+one of these missions ends with a precision landing (on a fixed or mobile platform , depending on
+the competitors’ choice), points will be added to the mission in question.
+Similarly, points will be awarded for completing multiple missions (this does not apply to mission
+4). Points will be added for each set of successfully completed missions.
+In the case of multiple missions, if the drone lands on the target at the end of the combined missions,
+the precision landing points will be awarded for all missions in the combination.
+Fig.9 is an example of an Aruco Marker 5x5 with ID 0. You can generate them on the website:
+https://chev.me/arucogen/
+Figure 9: Aruro Marker 5x5
+The landing platform will have a square surface area of 80x80 cm. The Aruco will be exactly
+this size (80x80 cm). The platform will have three modes:
+1. Horizontal, stationary
+2. Horizontal, with translation at 0.1 m/s
+3. 15°pitch, with translation at 0.1 m/s
+(a) Landing platform
+ (b) Landing platform
+15
+
+===== PAGE 16 =====
+Figure 11: Landing platform
+16
+
+===== PAGE 17 =====
+4.3 Scoring - Indoor Competition
+Each of the four missions has a maximum score of 20 points, divided into the following components:
+4.3.1 Mission Completion Score (up to 7 points)
+Points are awarded based on successful completion of the mission. Some parameters are multiplied
+by an autonomy factor:
+•1.0 for fully autonomous operation
+•0.7 for off-board calculations
+•0.4 if any manual intervention occurs : Manual flight control is prohibited; only occasional
+interventions (switch changes, mode changes, etc.) are permitted.
+4.3.2 Mass Factor (Capable of doubling the 7 points)
+A mass factor coefficient, ranging from 1.13 (for 3 kg) to 2.0 (for 0.1 kg), is applied to the Mission
+Completion Score (after autonomy factor). This multiplication allows the mission score to reach up
+to a maximum of 14 points. The mass factor rewards lighter drones.
+4.3.3 Landing Bonus (up to 2 points)
+•2 pointsfor landing on a moving platform
+•1 pointfor landing on a static platform
+If multiple missions are completed during a single flight, the landing bonus is applied to each corre-
+sponding mission score.
+4.3.4 Multi-Mission Bonus (up to 2 points)
+•2 pointsfor completing 3 missions in a single flight
+•1 pointfor completing 2 missions in a single flight
+When missions are combined within a single flight, the multi-mission bonus is counted for each
+mission involved.
+4.3.5 Self-Made Drone Factor (up to 2 points)
+Up to 2 additional points are awarded based on the level of in-house design. Points are granted to
+drones with more than 50% of their mechanical and/or electronic design developed by the team.
+Evaluation is based on the technical documentation submitted by each team
+4.3.6 Clarification on Bonus Accumulation
+A single flight achieving multiple missions and a successful landing allows teams to maximize their
+score:
+•If 3 missions are completed in one flight and the drone successfully lands on the platform, both
+the multi-mission bonus and the landing bonus are awarded to each of the three mission scores
+This design is intentional to encourage efficient mission chaining and maximize scoring opportunities.
+17
+
+===== PAGE 18 =====
+4.3.7 Additional Information
+Detailed scoring criteria for each mission are provided in the individual mission scoring tables.
+4.4 Missions - Indoor Competition
+4.4.1 Mission 1 - Obstacle course - Indoor Competition
+This mission will consist of completing an obstacle course: passing through two areas with two types
+of windows Fig.12a, flying over a fixed red bar at an adjustable height Fig.12b, under two fixed blue
+bars at an adjustable height Fig.13a, and through a pipe passage Fig.13b. PVC pipe diameter is
+10cm.
+Points will be awarded based on the size of the window passed through (surrounded by a red or blue
+border) as well as the height of the bars chosen.
+(a) Two types of windows
+ (b) Go over the red bar
+18
+
+===== PAGE 19 =====
+(a) Go under the two blue bars
+ (b) Overcoming the obstacle of tubes
+4.4.2 Scoring - Mission 1 - Obstacle course - Indoor Competition
+Tab.2 provides a detailed breakdown of the scoring system.
+Description Parameter Values
+Windows crossed W in ... 1 pt per red window and
+0.5 pt per blue window
+Red bar crossed BarR
+... 0.25 pt low bar
+0.5 pt middle bar
+0.75 pt high bar)
+Blue bar crossed BarB
+... 0.25 pt high bar
+0.5 pt middle bar
+0.75 pt low bar
+Tubes crossed T ub ... (0.5 pt)
+Cumulative mission
+bonus B1
+... (0 pt for one mission
+1 pt for two missions
+2 pts for three missions)
+Drone mass mission 1 W U AV ... (Max 3 kg)
+Weight factor W1 W1 = 2·
+
+1−e
+−Wmax
+1.2·Wuav
+
+Landing on platform La1 ... 2 pts land on moving platform
+1 pt land on fixed platform
+Autonomy factor A1i
+0.4 if manual
+actions occur
+0.7 if computations
+are off-board and/or
+if location beacons are used
+1 if fully
+autonomous
+Self made points SF1 ... (Max 2 pts)
+Total score mission 1 S1 S1 = 7
+4 ·(W in·A1 1 +BarR·A1 2 +BarB·A1 3 +T ub·A1 4)·W1
++B1 +La1 +SF1
+Table 2: Scoring mission 1 - Indoor competition
+19
+
+===== PAGE 20 =====
+4.4.3 Mission 2 - Inspect a dark room - Indoor Competition
+This mission will consist of inspecting a dark room (2.5 m cube) Fig.14. There will be two types of
+windows (circled in red or blue) through which to enter the room. The number of babies present in
+the room must be assessed. The number of babies in the room must be determined automatically
+and the value displayed on a screen.
+Figure 14: view of the room
+Here are the photos of the babies that will be used Fig.15i. Please note that their outfits may
+change.
+4.4.4 Scoring - Mission 2 - Inspect a dark room - Indoor Competition
+Tab.3 provides a detailed breakdown of the scoring system.
+20
+
+===== PAGE 21 =====
+(a) The Different Babies
+ (b) Baby 1
+ (c) Baby 1
+(d) Baby 2
+ (e) Baby 3
+ (f) Baby 3
+(g) Baby 4
+ (h) Baby 5
+ (i) Baby 5
+21
+
+===== PAGE 22 =====
+Description Parameter Values
+Flying
+in the room F in ... 1 for blue window
+... 2 for red window
+Flying
+out the room F out ... 1 for blue window
+... 2 for red window
+Number of babies counted Counted ... (IfCounted > N ba max then 0 pt )
+Actual number of babies N bamax ... (selected by the organization)
+Counting babies Ba Ba= 3·
+
+Counted
+N bamax
+
+Cumulative mission
+bonus B2
+... (0 pt for one mission
+1 pt for two missions
+2 pts for three missions)
+Drone mass mission 2 W U AV ... (Max 3 kg)
+Weight factor W2 W2 = 2·
+
+1−e
+−Wmax
+1.2·Wuav
+
+Landing on platform La2 ... 2 pts land on moving platform
+1 pt land on fixed platform
+Autonomy factor A1i
+0.4 if manual
+actions occur
+0.7 if computations
+are off-board and/or
+if location beacons are used
+1 if fully
+autonomous
+Self made points SF2 ... (Max 2 pts)
+Total score mission 2 S2 S2 = (F in·A2 1 +F out·A2 2 +Ba·A2 3)·W2 +La2 +B2 +SF2
+Table 3: Scoring mission 2 - Indoor competition
+4.4.5 Mission 3 - Dropping on hot spot - Indoor Competition
+For this mission, a cone must be dropped into a box containing a hot spot (temperature between
+70°C and 100°C). There will be three boxes close to each other Fig.16. The drone must drop the
+cone into the box that contains the hot spot.
+The various boxes will be placed within a circle with a radius of 1 m, located 1 m past the end
+of the obstacle course.
+The .STL file for the indoor competition cone is available for download on the website under
+:Competitions/IM AV2026CompetitionRulebookat the bottom of the page. The cone weighs 7g
+and is filled with 15% PLA.
+Figure 16: Box dimensions
+22
+
+===== PAGE 23 =====
+4.4.6 Scoring - Mission 3 - Dropping on hot spot - Indoor Competition
+To confirm that the drone has successfully detected a hot spot, the drone must be equipped with a
+red LED that flashes visibly when the drone is directly above the relevant box (before or during the
+release of the cone). Hb (hot box detected) points will be awarded based solely on this criterion.
+Tab.4 provides a detailed breakdown of the scoring system.
+Description Parameter Values
+Cone dropped in box Dr ... (4 pts cone dropped in hot box
+2 pt cone dropped in other box)
+Hot box detected Hb ... (3 pts if the red led blink)
+Cumulative mission
+bonus B3
+... (0 for one mission
+1 pt for two missions
+2 pts for three missions)
+Drone mass mission 3 W U AV ... (Max 3 kg)
+Weight factor W3 W3 = 2·
+
+1−e
+−Wmax
+1.2·Wuav
+
+Autonomy factor A1i
+0.4 if manual
+actions occur
+0.7 if computations
+are off-board and/or
+if location beacons are used
+1 if fully
+autonomous
+Landing on platform La3 ... 2 pts land on moving platform
+1 pt land on fixed platform
+Self made points SF3 ... (Max 2 pts)
+Total score mission 3 S3 S3 = (Dr·A3 1 +Hb·A3 2)·W3 +La3 +B3 +SF3
+Table 4: Scoring mission 3 - Indoor competition
+23
+
+===== PAGE 24 =====
+4.4.7 Mission 4 - Wind turbine inspection - Indoor Competition
+The purpose of this mission is to simulate the inspection of wind turbine blades. Wind turbine
+blades are equipped with a grounding system to prevent damage from lightning strikes.
+To test the continuity of the grounding system, the drone must retrieve a copper ring with a diameter
+of 8 cm and then point it at conductive copper discs Fig.17. Electrical contact between the ring and
+the disc will activate a buzzer. The contact system will be developed freely by each team.
+The copper ring will be equipped with a 4m long, 0.1mm enamelled copper wire, which will be
+connected to the continuity test electronic system. At the end of the mission, the drone must land
+near the base of the wind turbine to avoid any braking of the copper wire. The ring will be placed
+50 cm high on a support as shown in the image in Fig.18. Aruco markers will be placed to assist
+with the drone’s automatic positioning on the ring.
+The copper ring may be manually placed on the drone before takeoff at the base of the ring mount,
+but no “grabbing” points will be awarded in this case.
+Figure 17: Wind turbine blade
+4.4.8 Scoring - Mission 4 - Wind turbine inspection - Indoor Competition
+is the only mission that cannot be combined with the others and does not require landing on the
+landing pad.
+Tab.9 provides a detailed breakdown of the scoring system.
+24
+
+===== PAGE 25 =====
+Figure 18: Support of the ring
+Description Parameter Values
+Catch the ring grabRing ... (4 pts)
+Touch one copper disc touchW ind ... (5 pts)
+Drone mass mission 4 W U AV ... (Max 3 kg)
+Weight factor W4 W4 = 2·
+
+1−e
+−Wmax
+1.2·Wuav
+
+Autonomy factor A1i
+0.4 if manual
+actions occur
+0.7 if computations
+are off-board and/or
+if location beacons are used
+1 if fully
+autonomous
+Self made points SF4 ... (Max 2 pts)
+Total score mission 4 S4 S4 = ((grabRing·A4 1 +touchW ind·A4 2)·W4 +SF4)
+Table 5: Scoring mission 4 - Indoor competition
+25
+
+===== PAGE 26 =====
+5 Outdoor Competition rules
+5.1 Context - Outdoor Competition
+The outdoor competition focuses on forest fires, which are becoming increasingly frequent and intense
+in France. Early detection of a fire outbreak is now a major challenge in order to enable rapid
+intervention and limit the spread of flames. The missions proposed reproduce the different phases of
+a reconnaissance and first response operation, from mapping the area to providing direct assistance
+to ground crews.
+In this context, teams will have to complete four complementary missions:
+1. Map the area to identify and locate firefighting and military vehicles.
+2. Detect two hot spots and provide their precise GPS coordinates.
+3. Collect water and drop it on a target, simulating an initial firefighting action.
+4. Drop a first aid kit near a mannequin, with a bonus if the drop is made directly on the man-
+nequin equipped with a “dead man” device.
+A Self-made factor drone design points will be added for drones with more than
+50% of their design (mechanical and/or electronic) completed. These points will be
+awarded based on the technical document submitted by each team.
+All pilots must complete the AlphaTango online qualification and provide proof of comple-
+tion before they are allowed to fly. This is a French requirement. https://alphatango.aviation-
+civile.gouv.fr/login.jsp
+5.2 Field - Outdoor Competition
+The outdoor competition will take place at the Haguenau military training ground at the following
+GPS coordinates: 48.806567024502456, 7.852133729228434.
+Supervision and logistics will be organized by the 2nd Hussards Regiment. As this is an active
+military site, security checks may be carried out by military personnel if deemed necessary.
+All persons present on the site must have their identity card (or passport).
+The different areas are described on this map Fig.19
+The competition area will include:
+•A living area with tents for lunch service and sanitary facilities.
+•A team area equipped with tents and electrical power supply.
+•A designated waiting area for both spectators and teams before their flight slots.
+•A geofence defined by the following four corner coordinates:
+–48.80570456695289, 7.84961762660713
+–48.810842794362294, 7.847237082007214
+–48.81380786901547, 7.861214602971546
+–48.80863939598765, 7.864039635567677
+26
+
+===== PAGE 27 =====
+Figure 19: Outdoor competition area with description of the different zones
+•A flight area delimited by a black boundary line.
+•A dedicated take-off and landing zone suitable for all drone configurations.The GPS positions
+of the landing zones for the different types of drones will be defined at a later date, taking
+into account the wind conditions during the competition. The exact GPS coordinates for each
+zone and specific points will be provided on the day of the competition.
+•A specific area for Mission 3, including a water tank and, 25 meters away, a funnel represented
+from above as a 1,5×1,5m 2 red square target.
+•Mapping Area 1 (Mission 1).
+•Mapping Area 2 (Mission 1).
+•Fire detection area (Mission 2).
+•A search area for locating a mannequin equipped with a dead-man switch device (Mission 4).
+5.2.1 Precision landing
+The sizes of the precision landing zones are as follows:
+27
+
+===== PAGE 28 =====
+•multicopters : precision 1x1m²; zone 3x3m²
+•VTOL : precision 2x2m²; zone 5x5m²
+•fixedwing : precision 20x3m²; zone 50x5m²
+This means that to earn landing points, you must land in these areas. If you land outside of these
+areas, you will be awarded 0 landing points.
+A target in the form of a 5x5 Aruco marker measuring 80 cm x 80 cm will be used for precision
+landing of multicopters and VTOLs.
+Fig.20 is an example of an Aruco Marker with ID 0. You can generate them on the website:
+https://chev.me/arucogen/
+Figure 20: Aruro Marker 5x5
+28
+
+===== PAGE 29 =====
+5.3 Scoring - Outdoor Competition
+Each of the four missions has a maximum score of 20 points, divided into the following components:
+5.3.1 Mission Completion Score (up to 8 points)
+Points are awarded based on successful completion of the mission. Some parameters are multiplied
+by an autonomy factor:
+•1.0 for fully autonomous operation
+•0.7 for off-board calculations
+•0.4 if any manual intervention occurs : : Manual flight control is prohibited; only occasional
+interventions (switch changes, mode changes, etc.) are permitted.
+5.3.2 Mass Factor (Capable of doubling the 8 points)
+A mass factor coefficient, ranging from 1.02 (for 5 kg) to 2.0 (for 0.3 kg), is applied to the Mission
+Completion Score (after autonomy factor). This multiplication allows the mission score to reach up
+to a maximum of 16 points. The mass factor rewards lighter drones.
+5.3.3 Landing Bonus (up to 2 points)
+•2 pointsfor precision landing
+•1 pointto land in a specific area
+If multiple missions are completed during a single flight, the landing bonus is applied to each corre-
+sponding mission score.
+5.3.4 Self-Made Drone Factor (up to 2 points)
+Up to 2 additional points are awarded based on the level of in-house design:
+•Points are granted to drones with more than 50% of their mechanical and/or electronic design
+developed by the team
+•Evaluation is based on the technical documentation submitted by each team
+5.3.5 Additional Information
+Detailed scoring criteria for each mission are provided in the individual mission scoring tables.
+29
+
+===== PAGE 30 =====
+5.4 Missions - Outdoor Competition
+This year, four missions are proposed under the theme of forest fires and search and rescue. The
+objective will be to successfully complete as many missions as possible within a 30-minute time slot.
+5.4.1 Mission 1 - Mapping and vehicule identification - Outdoor Competition
+In the context of a wildfire, having an accurate map of the operational area, including the location
+of intervention teams, is essential. The objective of this mission is to generate a map of the area and
+to identify both the position and the designation of the emergency vehicles deployed on the field.
+Two mapping areas are proposed for this mission. The first one (Mapping Area 1) covers a
+restricted zone of 440 m×280 m. An extended area (Mapping Area 2) increases the coverage by
+an additional 440 m×320 m.
+Within these areas, a number of fire brigade and military vehicles will be positioned (the exact
+distribution between fire and military vehicles will be specified on the day of the competition).
+Teams will be required to deliver a map that allows clear visual identification of the different ve-
+hicles. Points will be awarded if GPS positions are provided with an accuracy of within 5 meters and
+if the vehicle will correctly be identified. You’ll need a table like this one Tab.6 to earn points. GPS
+coordinates must be provided in decimal degrees (for example, lat.: 48.62977 and long.: 7.78916).
+The GPS coordinates must be provided no later than 5 minutes after landing.
+Vehicle Identification GPS coordinates
+67-CCF-M-ING 48.8095202082736 ; 7.85202741622925
+GBC 180 48.8084886157098 ; 7.85187721252441
+Table 6: Sample table to submit mission 1
+Firefighter’s vehicle registration numbers will be visible from an aerial perspective Fig.21.
+Figure 21: trucks ”CCF” of fire brigade vehicles seen from above.
+30
+
+===== PAGE 31 =====
+Figure 22: VLTT: light off-road vehicle seen from above.
+For the fire brigade vehicle identification we will need to know whether it is a truck (CCF) or
+a light off-road vehicle (VLTT) and specify the brigade concerned (last 3 letters). For example,
+67-CCF M ING means that it is a truck from the INGwiller brigade. The roofs may be white (older
+vehicles) or yellow.
+To identify military vehicles, please specify their type (VT4, GBC 180, or VBL). See photos of these
+different vehicles.
+Figure 23: trucks ”CCF” of fire brigade vehicles with white roof.
+31
+
+===== PAGE 32 =====
+Figure 24: 4x4 VT4 model.
+Figure 25: light armored vehicle (VBL).
+32
+
+===== PAGE 33 =====
+Figure 26: Truck(GBC 180).
+33
+
+===== PAGE 34 =====
+5.4.2 Scoring - Mission 1 - Outdoor Competition
+The Tab.7 provides a detailed description of the scoring system.
+Description Parameter Values
+Mapping area surface Z 2 pts map 1 4 pts : map 1 + map 2
+Time to submit the map
+and the vehicles positions
+and identifications
+R 1 pt submission 30 min
+after flight
+2 pts immediate
+submission after
+flight (5 min max)
+Number of vehicles
+detected with
+identification and GPS positions
+nV ... 0.375 pts per vehicle (8 vehicles)
+Drone mass mission 1(kg) WU AV (kg) ... (Max 5 kg)
+Weight factor W1 W1 = 2·
+
+1−e
+−Wmax
+1.4·Wuav
+
+Autonomy factor A1 0.4 if manual
+actions occur
+0.7 if computations
+are off-board
+1 if fully
+autonomous
+Landing on platform La1 ... 2 pts for precision landing
+1 pt in the landing zone
+Self made points SF1 ... (Max 2 pts)
+Total score mission 1 S1 S1 = 8
+10 ·(Z+nV·R·A 1)·W 1 +La1 +SF1
+Table 7: Scoring mission 1 - Outdoor competition
+34
+
+===== PAGE 35 =====
+5.4.3 Mission 2 - Fire detection - Outdoor Competition
+The objective of this mission is to detect hot spots. The spots will not necessarily be fires but may
+simply be points with significant thermal radiation. There will be two hot spots to look for in the
+red area on the map. The objective of this mission will be to determine the GPS coordinates of these
+heat points in decimal degrees (e.g., lat: 48.62977 and long: 7.78916) with an accuracy of 5 meters.
+The GPS coordinates must be provided no later than 5 minutes after landing. Additional points
+will be awarded for the shape factor of the drones (VTOL or fixed-wing drones will be favoured).
+Energy consumption will also be measured during this mission.
+The mission must be carried out by a single drone and its flight will be timed
+Please note that the battery charger uses an XT60 connector. If your battery has a different
+type of connector, please make sure to have an XT60 adapter cable on hand.
+Time will be taken between take-off and landing: for a fixed-wing drone, between the moment
+of launch and the moment of landing and stop. The batteries will be recharged by us to their full
+capacity (charge rate of 1C), and we will calculate the capacity consumed in mAh. Batteries may be
+LiPo, NiMh, or Li-Ion type. The capacity of the battery value used must be legible on the batteries
+!
+5.4.4 Scoring - Mission 2 - Outdoor Competition
+The Tab.8 provides a detailed description of the scoring system.
+Description Parameter Values
+GPS Heat point 1 HP1 3.5 pts
+GPS Heat point 2 HP2 3.5 pts
+Configuration coefficient CF 0.75 multirotor, 1 pt fixed wing, 1.25 VTOL
+Battery capacity mAh ...
+Maximum battery voltage
+after charging V ...
+Flight time (s) T ime ...
+Drone mass mission 2(kg) WU AV ... (Max 5 kg)
+Power factor CP CP= T ime·50
+V·mAh (Max 3 pts)
+Weight factor W2 W2 = 2·
+
+1−e
+−Wmax
+1.4·Wuav
+
+Autonomy factor A2 0.4 if manual
+actions occur
+0.7 if computations
+are off-board
+1 if fully
+autonomous
+Landing on platform La2 ... 2 pts for precision landing
+1 pt in the landing zone
+Self made points SF2 ... (Max 2 pts)
+Total score mission 2 S2 S2 = 8
+11.75 ·(CF·(HP1 +HP2) +CP)·W 2 ·A 2 +La2 +SF2
+Table 8: Scoring mission 2 - Outdoor competition
+35
+
+===== PAGE 36 =====
+Heat points GPS coordinates
+Heat point 1 48.8104811247201 ; 7.85352945327759
+Heat point 2 48.8092941076099 ; 7.85393714904785
+Table 9: Sample table to submit mission 2
+5.4.5 Mission 3 - Collect and drop water - Outdoor Competition
+The objective of mission 3 will be to collect water from a basin (size will be given later) and dump
+it into a red square reservoir measuring 1.5 x 1.5 m². The goal of this mission will be to fill a 2-liter
+bottle placed under the reservoir. Points will be awarded based on the volume of water in the bottle
+at the end of the flight slot. If the ”wild card” is used, the best filling score between the two passes
+will be awarded to mission points. The water collection system is not specified, but it is mandatory
+that this water collection system be transparent so that the water can be seen after filling.
+5.4.6 Scoring - Mission 3 - Outdoor Competition
+The Tab.10 provides a detailed description of the scoring system.
+Description Parameter Values
+Water volume V ol ... (Max 2 L)
+Drone mass mission 3(kg) WU AV ... (Max 5 kg)
+Weight factor W3 W3 = 2·
+
+1−e
+−Wmax
+1.4·Wuav
+
+Autonomy factor A3 0.4 if manual
+actions occur
+0.7 if computations
+are off-board
+1 if fully
+autonomous
+Landing on platform La3 ... 2 pts for precision landing
+1 pt in the landing zone
+Self made points SF3 ... (Max 2 pts)
+Total score mission 3 S3 S3 = 4·V ol·W 3 ·A 3 +La3 +SF3
+Table 10: Scoring mission 3 - Outdoor competition
+36
+
+===== PAGE 37 =====
+5.4.7 Mission 4 - Drop a first aid kit on a mannequin with ”dead man” device -
+Outdoor Competition
+This mission involves dropping a first-aid kit (dimensions: 100x120x40 mm; weight: 200 g; link:
+https://www.securimed.fr/trousse-premiers-soins-individuelle-poche-1.html#102BFA) that
+can be attached using the zipper pull (8 mm in diameter) next to a mannequin equipped with an
+emergency stop device that emits a sound of a certain intensity (to be defined). Dead man sys-
+tem will be a MSA Motion scout KTR (https://www.somatico.fr/materiels-d-intervention/
+reconnaissance/detecteurs-d-immobilite/detecteur-d-immobilite-motion-scout) (Frequency
+2.6 – 3.0 kHz, alarm 95 dB at 3 m; 2 ultra bright LEDs)
+Figure 27: First-aid kit
+The package may be deposited or dropped at an altitude of less than 2 m for the mission to be
+validated. The GPS point for the search area will be provided on the day of the mission. There will
+be three mannequins located within a 25 m radius of this point. Only one of the mannequins will
+be equipped with a dead man’s switch. Points will be awarded based on the distance (d in cm) of
+the drop or release from the nearest mannequin. For a drop distance of less than 50 cm, the value
+of parameter d will be 50. The score will be doubled if the drop or release is made next to the
+mannequin equipped with the dead man’s switch. If the drop is made at an altitude greater than
+two meters (as estimated by the judge), no points will be awarded for the mission.
+5.4.8 Scoring - Mission 4 - Outdoor Competition
+The Tab.11 provides a detailed description of the scoring system.
+37
+
+===== PAGE 38 =====
+(a) Firefighter mannequin
+ (b) Firefighter mannequin
+(c) Firefighter mannequin
+ (d) Firefighter mannequin
+Figure 28: Firefighter mannequin
+38
+
+===== PAGE 39 =====
+Description Parameter Values
+Distance in cm from the
+navel to the object d ... (Min 50 - Max 300 cm)
+Drop on dead-man
+device DM 0 (wrong mannequin)
+1 (mannequin
+equipped with
+”Dead Man” device)
+Maximum distance in cm from the
+navel to the object dmax 300 cm
+Drone mass mission 4 WU AV ... (Max 5 kg)
+Weight factor W4 W4 = 2·
+
+1−e
+−Wmax
+1.4·Wuav
+
+Autonomy factor A4 0.4 if manual
+actions occur
+0.7 if computations
+are off-board
+1 if fully
+autonomous
+Landing on platform La4 ... 2 pts for precision landing
+1 pt in the landing zone
+Self made points SF4 ... (Max 2 pts)
+Total score mission 4 S4 S4 = 8
+10 ·( dmax
+d −1)·(1 +DM)·W 4 ·A 4 +La4 +SF4
+Table 11: Scoring mission 4 - Outdoor competition
+39
