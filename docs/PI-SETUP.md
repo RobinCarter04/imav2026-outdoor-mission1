@@ -23,7 +23,9 @@ SSH gives you a terminal on the Pi from your own laptop. You type on your laptop
 
 ### Step 1.1 — Open a terminal on your laptop
 
-macOS: Terminal. Windows: PowerShell.
+macOS: Terminal. Windows: PowerShell — plain PowerShell is enough, there is nothing to install and you do
+not need WSL. (WSL only comes up if you want to run the *simulator* on a Windows machine; see
+[LAUNCH.md](LAUNCH.md).)
 
 ### Step 1.2 — Connect
 
@@ -67,14 +69,29 @@ no extension, in the boot partition. On the next boot SSH is on.
 
 ### Step 1.4 — Stop typing the password every time (optional, worth it)
 
-On your laptop:
+Make a key, on your laptop, once. Same on both platforms — press Enter at every prompt:
 
 ```bash
-ssh-keygen -t ed25519          # press Enter at every prompt
+ssh-keygen -t ed25519
+```
+
+Then copy it to the Pi. **This part differs.**
+
+macOS:
+
+```bash
 ssh-copy-id pi@raspberrypi.local
 ```
 
-After that `ssh pi@raspberrypi.local` logs straight in.
+Windows: `ssh-copy-id` does not ship with Windows OpenSSH, so that command fails with
+"not recognized". Do the same job by hand in PowerShell:
+
+```powershell
+type $env:USERPROFILE\.ssh\id_ed25519.pub | ssh pi@raspberrypi.local "mkdir -p ~/.ssh && chmod 700 ~/.ssh && cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
+```
+
+It asks for the Pi password one last time. After that `ssh pi@raspberrypi.local` logs straight in on
+either platform.
 
 ---
 
@@ -281,6 +298,7 @@ Ctrl-B is a prefix. Press and release it, then press the next key.
 | Dashboard loads but shows no telemetry | The MAVProxy bridge is not seeing the Cube. Go back to Part 4 |
 | Preflight refuses to go green | Read the rows on the dashboard. GPS and EKF need ~30 seconds outdoors and never lock indoors |
 | "Read-only file system" when writing logs | Some lab Pi images protect the root filesystem. `mount \| grep " / "`; if it says `overlay`, turn off the overlay in `raspi-config` → Performance Options |
+| `bad interpreter: No such file or directory` running a script | The script was edited or committed from Windows and picked up CRLF line endings. Edit scripts on the Pi or on a Mac; to fix one in place, `sed -i 's/\r$//' scripts/<name>.sh` |
 | Clock is wrong, log timestamps look odd | No internet, so no time sync. A steady offset is harmless — both processes read the same clock and geotagging only needs relative time. A clock **step** during a flight is not: see the note in Part 6 |
 
 ---
