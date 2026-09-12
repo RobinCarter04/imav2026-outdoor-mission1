@@ -6,12 +6,24 @@ and hand it back, and say what the aircraft will do if something goes wrong. Tha
 
 Budget 90 minutes. The hands-on blocks are the ones that matter; cut the talking first.
 
-## Before the meeting (10 minutes)
+## Before the meeting — send this the day before
 
-- Push the repo and send the link.
-- Ask everyone to run `make setup` and `make test` **before** they arrive. Setup on a cold laptop is
-  the single biggest time sink and it is boring to watch.
-- Have one SITL session already running on your machine as a fallback demo.
+The simulator is a separate ~1 GB project that each laptop builds once, and it takes 20-40 minutes.
+Nobody can fly in the session without it, so it has to happen beforehand.
+
+Message to send:
+
+> Clone <repo link>, then run these three. The third one takes 20-40 minutes, leave it running.
+> ```
+> make setup
+> make test          # should say 59 passed
+> make sitl-setup    # builds the simulator, slow, once per laptop
+> ```
+> Reply when `make test` says 59 passed. If anything errors, send me the last 20 lines.
+
+Chase the replies. Someone arriving with nothing installed costs the whole group a third of the
+session. Have one SITL session already running on your machine as a fallback demo, and be ready to
+pair anyone who failed setup with someone who did not.
 
 ## 1. What it does, in one lap (10 min, you drive)
 
@@ -27,7 +39,8 @@ Show the results folder at the end. That is the product.
 
 ## 2. Everyone runs it (20 min, hands on)
 
-Let them work in pairs. Target: dashboard open, mission flown, results file opened.
+Let them work in pairs. Target: dashboard open, mission flown, results file opened. Anyone whose
+`make sitl-setup` did not finish pairs up rather than watching a build bar.
 
 ```bash
 make launch

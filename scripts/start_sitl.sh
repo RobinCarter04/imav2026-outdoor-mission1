@@ -23,7 +23,17 @@ RT="$HERE/sim/runtime"; [ "$INSTANCE" != "0" ] && RT="$RT/i$INSTANCE"
 mkdir -p "$RT"
 SERIAL1_PORT=$((5762 + 10 * INSTANCE))
 
-[ -x "$BIN" ] || { echo "arducopter SITL binary not found at $BIN — build it or set ARDUPILOT_DIR (sim/README.md)" >&2; exit 1; }
+if [ ! -x "$BIN" ]; then
+  echo "No ArduPilot SITL binary at:" >&2
+  echo "  $BIN" >&2
+  echo >&2
+  echo "The simulator is a separate project, one build per laptop. Get one with:" >&2
+  echo "  scripts/setup_sitl.sh          (clones and builds it, 20-40 min the first time)" >&2
+  echo "  scripts/setup_sitl.sh --check  (just report what is on this machine)" >&2
+  echo >&2
+  echo "Already have a build elsewhere?  export ARDUPILOT_DIR=/path/to/ardupilot" >&2
+  exit 1
+fi
 if pgrep -f "arducopter.*-I$INSTANCE( |$)" >/dev/null || { [ "$INSTANCE" = "0" ] && pgrep -f "build/sitl/bin/arducopter" >/dev/null && ! pgrep -f "arducopter.*-I[1-9]" >/dev/null; }; then
   echo "SITL instance $INSTANCE already running (scripts/stop_sitl.sh to stop)"; exit 0
 fi

@@ -14,6 +14,7 @@ The only manual step is pressing START. A safety pilot can take control at any m
 ```bash
 make setup                              # once: virtualenv + install
 make test                               # must be green
+make sitl-setup                         # once per laptop: build the simulator (20-40 min)
 make launch                             # SITL + mission dashboard, a window each
 make launch SITE=fenswood               # the Fenswood Farm test area instead
 make launch GCS=<windows-vm-hostname>   # and Mission Planner spectating
@@ -29,6 +30,7 @@ ready" → START MISSION.**
 |---|---|
 | [docs/HUMAN-REFERENCE.md](docs/HUMAN-REFERENCE.md) | The things that save you an hour. Read this one first. |
 | [docs/LAUNCH.md](docs/LAUNCH.md) | Every way to start a session, on the laptop and on the Pi |
+| [docs/PI-SETUP.md](docs/PI-SETUP.md) | Getting it running on the aircraft's Pi, step by step |
 | [docs/SAFETY.md](docs/SAFETY.md) | Non-negotiable rules. Read before touching hardware. |
 | [docs/SIM_TO_REAL.md](docs/SIM_TO_REAL.md) | The gate code passes through before it flies |
 | [docs/AI-GUIDE.md](docs/AI-GUIDE.md) | Using Claude Code on this repo without breaking it |

@@ -18,6 +18,27 @@ Entry template:
 
 ---
 
+## 2026-09-12 (later) — Pushed to GitHub; Pi setup guide; one-command simulator install
+- Who: Robin (with Claude)
+- Commit: this one   Profile: n/a
+- Changed: `docs/PI-SETUP.md` — step-by-step Pi bring-up written for someone new to SSH: connecting
+  and every way that fails, getting the code across without GitHub auth on the Pi (rsync) or with a
+  token, serial port and dialout setup, a props-off MAVLink check, the bench run, flight-day sequence,
+  a tmux cheat sheet and a symptom table. `scripts/setup_sitl.sh` + `make sitl-setup` find or build an
+  ArduPilot SITL binary, and `start_sitl.sh` now points at it instead of failing with a bare path.
+  Teaching plan gained a day-before message, since the simulator build is 20-40 minutes per laptop.
+- Tested: pushed to github.com/RobinCarter04/imav2026-outdoor-mission1 (private); **cold clone
+  verified end to end** in a scratch dir — `make setup` installed cleanly, `make test` 59 passed,
+  `imav-m1 plan --site fenswood` worked with no simulator present. `setup_sitl.sh --check` finds the
+  existing build; the missing-binary path prints the new instructions. Lint clean.
+- Result: PASS.
+- Learned / surprises: a fresh clone is fully working for tests and planning, but SITL needs a
+  separate ~1 GB ArduPilot build per laptop — the old script defaulted to a path only on Robin's Mac,
+  so a teammate's first `make launch` would have failed with no explanation. That would have cost the
+  teaching session its hands-on block.
+- Next: run the session; then the four assessment fixes (results on shutdown, fence read-back,
+  home-inside-fence, mission timer).
+
 ## 2026-09-12 — Repo reshaped for sharing; teaching, human and AI guides
 - Who: Robin (with Claude)
 - Commit: this one, on top of `56c7de8`   Profile: n/a (docs + layout)

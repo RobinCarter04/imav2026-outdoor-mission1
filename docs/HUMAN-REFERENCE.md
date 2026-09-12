@@ -95,7 +95,7 @@ then `--kml yourfile.kml`. That overrides the built-in area.
 
 ## On the aircraft
 
-One SSH session, one script:
+First time on a Pi, follow [PI-SETUP.md](PI-SETUP.md). After that:
 
 ```bash
 ssh pi@<pi-hostname>

@@ -56,6 +56,10 @@ or run `scripts/sitl_hold_sticks.sh` first — see `sim/README.md` §5b.
 
 ## 2. Hardware — the answer to "one SSH, one script"
 
+> First time on a given Pi? Work through [PI-SETUP.md](PI-SETUP.md) first — SSH, serial port,
+> packages and a props-off bench check. This section assumes that is done.
+
+
 Yes, exactly that. From the ground-station laptop:
 
 ```bash

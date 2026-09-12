@@ -1,5 +1,5 @@
 # IMAV 2026 Outdoor Mission 1 — common tasks.  `make help` lists targets.
-.PHONY: help setup test test-sitl lint fmt launch stop sitl sitl-stop gcs-bridge mission-sim mission-sim-auto plan-sim replay check-config preflight
+.PHONY: help setup test test-sitl lint fmt sitl-setup launch stop sitl sitl-stop gcs-bridge mission-sim mission-sim-auto plan-sim replay check-config preflight
 
 VENV := .venv
 PY   := $(VENV)/bin/python
@@ -26,6 +26,9 @@ lint:               ## ruff lint + format check
 fmt:                ## auto-format
 	$(VENV)/bin/ruff format src tests tools
 	$(VENV)/bin/ruff check --fix src tests tools
+
+sitl-setup:         ## one-time per laptop: find or build the ArduPilot SITL binary
+	./scripts/setup_sitl.sh
 
 launch:             ## ONE COMMAND: SITL + mission (+ Mission Planner bridge with GCS=<host>), one Terminal window each
 	./scripts/launch_sim.sh $(if $(GCS),--gcs $(GCS)) $(if $(KML),--kml $(KML)) $(if $(SITE),--site $(SITE)) $(ARGS)
