@@ -66,7 +66,7 @@ Yes, exactly that. From the ground-station laptop:
 ssh pi@raspberrypi.local                     # your Pi's user and hostname
 cd ~/imav-m1
 git pull                                     # or rsync the repo across
-./scripts/launch_hardware.sh --gcs 192.168.1.50
+./scripts/launch_hardware.sh --site imav --gcs 192.168.1.50
 ```
 
 Then open `http://<pi-ip>:5000/` in the laptop's browser and fly the mission from there.
@@ -91,6 +91,7 @@ background processes with logs under `sim/runtime/`, which also survive, but tmu
 | Option | |
 |---|---|
 | `--gcs IP` | ground station for Mission Planner telemetry |
+| `--site NAME` | which pre-programmed areas to fly: `imav` or `fenswood` |
 | `--bench` | bring-up mode: skips the preflight gate, prints that the session is **not cleared to fly**. Props off |
 | `--kml FILE` | competition-day areas |
 | `--detector-cmd '…'` | run the teammate's detector instead of the placeholder |
