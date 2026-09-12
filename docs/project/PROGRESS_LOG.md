@@ -18,6 +18,27 @@ Entry template:
 
 ---
 
+## 2026-09-12 (latest) — Verified: the slot guard cannot override the safety pilot
+- Who: Robin (with Claude)
+- Commit: this one   Profile: sim (unit)   Site: imav
+- Changed: no production code. Added `test_slot_guard_never_overrides_the_pilot` to
+  `tests/unit/test_state_machine.py` to pin the interaction between the competition slot timer
+  (ADR-012) and the two-gate pilot override.
+- Tested: 106 unit tests pass, lint clean. The new test drives a full run in which the pilot takes
+  LOITER early in the survey, the slot deadline expires *while paused*, and it asserts that
+  `slot_return_started` stays unset and `FakeVehicle` receives no calls for the whole pause; the
+  forced return only happens after the pilot returns to GUIDED and the operator presses RESUME.
+  Mutation-checked twice: moving the slot check to the top of the SURVEY loop does **not** fail the
+  test (correctly — `pilot_override_pause` blocks internally, so the SURVEY loop is not running
+  during a pause and statement order there is irrelevant), while adding a slot escape inside
+  `pilot_override_pause` does fail it with "the slot guard fired while the pilot had control".
+- Result: PASS — the override is absolute. The timer is suppressed for the whole pause and applies
+  on the first AUTO iteration after RESUME.
+- Learned / surprises: the guarantee comes from `pilot_override_pause` being a blocking loop that
+  commands nothing, not from where the slot check sits in SURVEY. Worth knowing before anyone
+  "tidies" that function into a non-blocking poll — that refactor would silently open the hole.
+- Next: unchanged — parameter dump into `hardware/params/`, then `camera.hfov_deg`.
+
 ## 2026-09-12 (latest) — Preflight false negative fixed; launcher works off macOS; Pi clock note
 - Who: Robin (with Claude)
 - Commit: this one   Profile: hardware (preflight) + sim (launcher)   Site: imav, fenswood

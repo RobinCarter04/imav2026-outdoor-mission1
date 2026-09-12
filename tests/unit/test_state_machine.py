@@ -411,6 +411,64 @@ def test_slot_guard_cuts_the_survey_short_and_flies_the_return_leg(tmp_path):
     assert (tmp_path / "results" / "mission1_vehicles.csv").exists()
 
 
+def test_slot_guard_never_overrides_the_pilot(tmp_path):
+    """The competition clock must not command the aircraft while the safety pilot has it.
+
+    Slot deadline expires *during* a pilot override. Nothing may be sent until the pilot has handed
+    back and the operator has pressed RESUME; only then may the guard cut to the return leg.
+    """
+    ctx, v, status = make_ctx(tmp_path)
+    ctx.cfg["operator"]["override_timeout_s"] = 300
+    ctx.cfg["mission"]["slot_duration_s"] = 60.0
+    ctx.cfg["mission"]["return_margin_s"] = 30.0  # deadline 30 s after START
+    v.connect()
+    for c in OPERATOR_SEQUENCE:
+        status.send_command(c)
+
+    st = {"phase": 0, "t": 0.0, "calls": 0}
+    base_sleep = ctx.sleep
+
+    def sleep(s):
+        base_sleep(s)
+        cur = status.get_status()
+        elapsed = ctx.clock() - st["t"]
+        if (
+            st["phase"] == 0
+            and cur["current_state"] == "SURVEY"
+            and cur.get("survey", {}).get("done", 0) >= 1
+        ):
+            v.pilot_set_mode("LOITER")  # pilot takes over, well before the deadline
+            st.update(phase=1, t=ctx.clock(), calls=len(v.calls))
+        elif st["phase"] == 1 and elapsed > 45:
+            # The slot deadline has now passed while the pilot holds the aircraft.
+            assert ctx.shared["mission_start_time"] is not None
+            assert not ctx.shared.get("slot_return_started"), (
+                "the slot guard fired while the pilot had control"
+            )
+            assert len(v.calls) == st["calls"], (
+                f"commanded the vehicle while paused: {v.calls[st['calls'] :]}"
+            )
+            v.pilot_set_mode("GUIDED")  # pilot hands back
+            st.update(phase=2, t=ctx.clock())
+        elif st["phase"] == 2 and elapsed > 4:
+            # Handed back but no RESUME yet: still nothing, deadline or no deadline.
+            assert not ctx.shared.get("slot_return_started"), "resumed without an operator RESUME"
+            assert len(v.calls) == st["calls"]
+            status.send_command({"type": "resume"})
+            st.update(phase=3, t=ctx.clock())
+
+    ctx.sleep = sleep
+    m = StateMachine(ctx, STATE_CLASSES, INITIAL_STATE, max_transitions=60)
+    assert m.run() == "DONE", m.history
+    assert st["phase"] == 3, "the override sequence did not run"
+    assert "ABORT" not in m.history
+    # Once flying again, the expired guard applies immediately: home with what we have.
+    assert ctx.shared["slot_forced_return"] is True
+    first, last = ctx.shared["survey_seq_range"]
+    assert ctx.shared["survey_last_reached"] < last
+    assert v.armed() is False
+
+
 def test_slot_guard_off_by_default_flies_the_whole_survey(tmp_path):
     ctx, v, status = make_ctx(tmp_path)
     ctx.cfg["mission"]["slot_duration_s"] = None
