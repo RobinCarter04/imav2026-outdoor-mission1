@@ -42,6 +42,8 @@ class TelemetryLog:
             "lon": t.lon,
             "alt": t.alt_rel_m,
             "hdg": t.heading_deg,
+            "pitch": t.pitch_deg,
+            "roll": t.roll_deg,
             "gs": t.groundspeed_mps,
             "sats": t.satellites,
             "fix": t.gps_fix,

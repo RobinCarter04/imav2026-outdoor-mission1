@@ -122,6 +122,47 @@ curl -X POST "$IMAV_DASHBOARD/api/detection" -H 'content-type: application/json'
 the very same file, so the dashboard list, the vehicle table and the map behave identically either
 way. Pick whichever suits your code; you can mix them.
 
+## Option C — boxes only, and we do the geotagging (ADR-013)
+
+**This is the preferred route.** Give us bounding boxes in pixels and nothing else. We do the
+projection to lat/lon, the aggregation across frames and the de-duplication
+(`detection/georef.py`, `detection/aggregate.py`, `detection/geotag.py`).
+
+What that buys you: no drone, no GPS, no MAVLink, no camera calibration, no flight day. You can
+build and test the whole thing on recorded video on a laptop.
+
+Append one line **per box, per frame** to `$IMAV_RUN_DIR/detections/raw_detections.jsonl`:
+
+```json
+{"t": 1789050000.123, "bbox": [712, 380, 764, 431], "cls": "CCF", "conf": 0.82,
+ "frame_w": 1456, "frame_h": 1088, "image": "frames/000421.jpg"}
+```
+
+| field | required | meaning |
+|---|---|---|
+| `t` | **yes** | unix seconds **when the frame was captured**, not when it was processed. This is the single most important field: at 10 m/s, 100 ms of error is 1 m on the ground against a 5 m budget |
+| `bbox` | yes | `[x1, y1, x2, y2]` in pixels. Or give `px`/`py` for the box centre |
+| `cls` | yes | `CCF` · `VLTT` · `VT4` · `GBC180` · `VBL` · `unknown` (§5.4.1) |
+| `conf` | no | 0–1 |
+| `frame_w`, `frame_h` | if resized | the frame the box coordinates belong to; omit if full camera resolution |
+| `image` | no | path relative to the run dir; the most centred one becomes the evidence photo |
+
+Three things that invert the usual defaults:
+
+- **Do not de-duplicate and do not track.** Every frame a vehicle appears in is one more line. More
+  observations is a better position — we take the median of the cluster.
+- **Do not filter hard.** A low-confidence box costs nothing; acceptance happens on our side.
+- **Keep the class on every line.** It survives all the way to the submission table.
+
+Then, live or afterwards:
+
+```bash
+python -m imav_m1.detection.geotag --run-dir data/flights/latest
+```
+
+which writes the `detections.jsonl` described above. Because it needs only the two files, a recorded
+sortie can be re-processed as often as you like — recalibrate, retune, re-run, no flying.
+
 ## What we do not need to know
 
 How you capture frames, which model you run, how you georeference, or what you do on the Pi. The

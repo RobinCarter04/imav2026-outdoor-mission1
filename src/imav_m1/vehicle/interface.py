@@ -95,6 +95,8 @@ class Telemetry:
     alt_rel_m: float | None = None  # relative to home (GLOBAL_POSITION_INT)
     alt_msl_m: float | None = None
     heading_deg: float | None = None
+    pitch_deg: float | None = None  # ATTITUDE; georeferencing needs it (detection/georef.py)
+    roll_deg: float | None = None
     groundspeed_mps: float | None = None
     satellites: int | None = None
     gps_fix: int | None = None

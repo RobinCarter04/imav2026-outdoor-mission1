@@ -146,3 +146,45 @@ New record → copy `templates/decision_record.md`. Never delete a record; super
 - Consequences: a survey that would overrun now returns with partial coverage instead, which scores.
   One vehicle seen on two survey lines is submitted once. The detector gains an optional
   `position_error_m` field, documented in `../DETECTION_INTERFACE.md`.
+
+## ADR-013 — We own geotagging; the detector hands over boxes in pixels
+
+- Date: 2026-09-12
+- Status: accepted
+- Context: the teammate building the vehicle model is unlikely to be the person doing geotagging, and
+  the SaR project already contains a working projection and consensus chain
+  (`robin_package/passive_watch.py`: `DummyEstimator`, `SmartEstimator`). Ilias's code puts
+  georeferencing inside the detector, which couples the vision work to the aircraft, the GPS and a
+  flight day.
+- Decision: move the interface boundary down to pixels. The detector returns bounding boxes in frame
+  coordinates with a class, a confidence and a **frame capture timestamp**, and nothing else. We do
+  projection (`detection/georef.py`), aggregation (`detection/aggregate.py`) and submission
+  filtering (`detection/filter.py`).
+- Port notes, and where we deliberately differ from SaR:
+  - **One projection path.** SaR had a flat-earth branch and a tilt-compensated ray-trace branch, and
+    the two disagree by a 90° rotation: flat-earth treats image-up as forward, the ray-trace feeds
+    image-x in as the forward component. Only the flat-earth convention is kept, with the tilt maths
+    on top. Anything geotagged by the SaR ray-trace branch should be treated as rotated.
+  - **A ray that misses the ground returns `None`.** SaR fell back to the flat-earth estimate, which
+    ignores the tilt that caused the miss. The same fault exists in Ilias's `_pixel_to_world`, which
+    returns the aircraft's own position. A missing fix is cheaper than a confident wrong one.
+  - **Pose is interpolated to the frame time** (`georef.PoseBuffer`). SaR used the latest MAVLink
+    value, which is right for a hover and costs about 1 m per 100 ms of lag at 10 m/s.
+  - **Many targets, not one.** `SmartEstimator` locked onto a single casualty and then stopped. Fixes
+    are now clustered by ground position, so the clustering *is* the tracker: on a nadir survey the
+    vehicle's ground position is stationary while its image position sweeps, world-space association
+    is easier than image-space, de-duplication falls out, and the class label survives — which is
+    exactly where Ilias's SORT stage loses it.
+  - **Lock thresholds are not ported.** 5 estimates agreeing within 1 m is reachable in a hover and
+    not from a single 60 m pass. Every cluster above `min_observations` is reported with an honest
+    error, and `filter.py` decides what is submitted.
+  - **Bounding-box centre, not bottom edge.** The bottom edge is the oblique-camera convention and
+    biases every fix down-range.
+- Also required: `ATTITUDE` is now read into `Telemetry.pitch_deg` / `roll_deg` and logged to
+  `telemetry.jsonl`. Without it the chain cannot meet the 5 m tolerance — 5° of cruise pitch at 60 m
+  is 5.2 m of along-track error on its own, more than the whole budget (§5.4.1).
+- Consequences: the detection teammate needs no drone, no GPS, no MAVLink and no flight day, and can
+  be assessed on recorded video. A recorded sortie can be re-geotagged offline as often as we like
+  (`python -m imav_m1.detection.geotag --run-dir …`), so calibration and tuning do not need flights.
+  `position_error_floor_m` (default 3 m) is a guess until ground truth is surveyed, and it is the
+  number that decides what passes the 5 m acceptance gate.

@@ -15,6 +15,7 @@ This is the ONLY module allowed to import pymavlink (ADR-003; tests/unit/test_la
 
 from __future__ import annotations
 
+import math
 import time
 from collections.abc import Sequence
 from typing import Any
@@ -171,6 +172,10 @@ class MavlinkVehicle:
             t.groundspeed_mps = hud.groundspeed
             if t.heading_deg is None:
                 t.heading_deg = float(hud.heading)
+        att = msgs.get("ATTITUDE")
+        if att:
+            t.pitch_deg = math.degrees(att.pitch)
+            t.roll_deg = math.degrees(att.roll)
         sys_status = msgs.get("SYS_STATUS")
         if sys_status:
             t.battery_v = sys_status.voltage_battery / 1000.0

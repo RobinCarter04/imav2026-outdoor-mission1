@@ -104,6 +104,13 @@ detection:
   classes: [CCF, VLTT, VT4, GBC180, VBL]              # §5.4.1 vehicle types; brigade letters handled separately
   conf_threshold: 0.5
   input_size: 640
+  georef:                     # pixel -> ground (detection/georef.py)
+    terrain_offset_m: 0.0     # ground under the survey minus ground at home, if it is known
+    max_pose_gap_s: 0.5       # a frame further than this from a telemetry sample gets no fix
+  aggregate:                  # per-frame fixes -> one row per vehicle (detection/aggregate.py)
+    link_radius_m: 8.0        # a fix this close to a cluster is the same vehicle seen again
+    min_observations: 2       # one frame is a glimpse, not a vehicle
+    position_error_floor_m: 3.0  # systematic error the cluster spread cannot see (calibrate me)
   accept:                     # what reaches the submission table (detection/filter.py)
     min_confidence: 0.5       # below this a fix is dropped; null accepts any
     max_position_error_m: 5.0 # §5.4.1 scores within 5 m; a fix admitting worse is dropped

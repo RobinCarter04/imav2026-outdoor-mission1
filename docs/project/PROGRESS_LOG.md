@@ -18,6 +18,36 @@ Entry template:
 
 ---
 
+## 2026-09-12 (latest) — Geotagging chain ported from SaR; detector boundary moved down to pixels
+- Who: Robin (with Claude)
+- Commit: this one   Profile: sim   Site: n/a (offline)
+- Changed: ADR-013. The detection teammate now supplies bounding boxes in pixels with a frame
+  timestamp, and we own everything after that. New `detection/georef.py` (projection + `PoseBuffer`
+  interpolated to the frame time), `detection/aggregate.py` (`VehicleAggregator`: world-space
+  clustering, one row per vehicle), `detection/geotag.py` (offline runner:
+  `python -m imav_m1.detection.geotag --run-dir …`). Ported from SaR
+  `robin_package/passive_watch.py` — `DummyEstimator` and `SmartEstimator`. `ATTITUDE` is now read
+  into `Telemetry.pitch_deg`/`roll_deg` and written to `telemetry.jsonl`. New config under
+  `detection.georef` and `detection.aggregate`.
+- Tested: unit — 105 pass (31 new: `test_georef.py` 17, `test_aggregate.py` 14), lint clean. The
+  end-to-end test flies a synthetic pass over one truck, projects 5 frames and recovers the position
+  to within 1 m. No SITL and no hardware involved; nothing in the flight path changed.
+- Result: PASS — the chain runs end to end on files alone.
+- Learned / surprises:
+  - **The two SaR projection branches disagree by 90°.** Flat-earth treats image-up as forward; the
+    ray-trace feeds image-x in as the forward component. Anything geotagged with the ray-trace branch
+    is rotated. Only one path is ported.
+  - **`telemetry.jsonl` had no pitch or roll**, and nothing subscribed to `ATTITUDE`. At 60 m, 5° of
+    cruise pitch is 5.2 m of along-track error — more than the entire 5 m tolerance (§5.4.1). This
+    was a silent ceiling on accuracy that no amount of detector work would have lifted.
+  - Pose was being taken as "latest value", SaR-style. Fine for a hover, ~1 m per 100 ms at 10 m/s.
+  - Clustering in world coordinates removes the need for a frame-to-frame tracker entirely, and keeps
+    the class label that Ilias's SORT stage discards.
+- Next: (1) `position_error_floor_m` is a guess (3 m) until ground truth is surveyed — it decides what
+  passes the 5 m gate; (2) `camera.hfov_deg` is still null, so `Camera.from_config` refuses to run —
+  measure it; (3) agree the `raw_detections.jsonl` contract with the detection teammate; (4) decide
+  whether the detector writes raw boxes live or we geotag post-flight (both work, same code).
+
 ## 2026-09-12 (later) — Slot guard and detection acceptance ported from the team's outdoor FSM
 - Who: Robin (with Claude)
 - Commit: this one   Profile: sim   Site: imav
