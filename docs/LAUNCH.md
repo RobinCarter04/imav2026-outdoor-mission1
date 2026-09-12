@@ -42,6 +42,13 @@ EKF time to settle, and opens the dashboard in your browser.
 simulator: position stops advancing at almost no CPU. The launcher refuses to start when it finds
 one; `--clean` clears them.
 
+**On Linux and on Windows under WSL2** the same command works: with no macOS Terminal to open, each
+stage goes into a window of a tmux session instead, and the launcher prints
+`tmux attach -t imav-sim`. With neither Terminal nor tmux the stages run detached with logs in
+`sim/runtime/launch/`. Native Windows is not supported — the simulator does not build there. Clone
+inside the WSL filesystem (`~/imav-m1`), not under `/mnt/c/`, or the scripts lose their execute bit
+to CRLF line endings.
+
 In the dashboard: **Setup → Preflight → tick "safety pilot ready" → START MISSION.**
 
 Taking over from Mission Planner: switch to **GUIDED** (or LOITER) and the mission pauses instantly

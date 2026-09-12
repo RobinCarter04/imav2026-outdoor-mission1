@@ -66,7 +66,7 @@ if [ "$BENCH" = "1" ]; then
   warn "Do not fly from a bench-mode session (docs/SIM_TO_REAL.md stage 3)."
 else
   say "running the flight preflight checks (docs/SIM_TO_REAL.md)"
-  ./scripts/preflight.sh || die "preflight FAILED — do not fly. Fix the items above, or use --bench for ground testing."
+  SITE="$SITE" ./scripts/preflight.sh || die "preflight FAILED — do not fly. Fix the items above, or use --bench for ground testing."
 fi
 
 MISSION_ARGS="run --profile hardware --name $NAME"

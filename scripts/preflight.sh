@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Hardware preflight — run on the Pi before every real flight. Exits non-zero on any failure.
+# SITE=imav|fenswood checks that site's areas (launch_hardware.sh passes it through).
 # Automates what can be automated; the printed checklist covers the rest (docs/templates/flight_test_card.md).
 set -uo pipefail
 HERE="$(cd "$(dirname "$0")/.." && pwd)"; cd "$HERE"
@@ -13,14 +14,29 @@ if git describe --tags --exact-match HEAD >/dev/null 2>&1; then ok "on tag $(git
 if .venv/bin/python -m pytest -q >/dev/null 2>&1; then ok "unit tests pass"; else bad "unit tests fail"; fi
 if .venv/bin/python -m imav_m1.cli check-config --profile hardware >/dev/null 2>&1; then ok "hardware profile loads"; else bad "hardware profile does not load"; fi
 
-poly=$(.venv/bin/python - <<'PY'
+# Resolve the areas the way the mission actually will (mission/area.py), so this gate sees the
+# fence the site layer supplies through site.flight_area and not only an explicit
+# safety.geofence.polygon override, and validate them rather than counting vertices.
+areas=$(.venv/bin/python - "${SITE:-}" <<'PYEOF' 2>&1
+import sys
 from imav_m1.config import load_config
-c=load_config("hardware"); print(len(c["mission"]["survey"]["area_polygon"]), len(c["safety"]["geofence"]["polygon"]))
-PY
+from imav_m1.mission.area import load_area_inputs, validate_area_inputs
+
+site = sys.argv[1] or None
+try:
+    a = load_area_inputs(load_config("hardware", site))
+    validate_area_inputs(a.survey, a.fence, a.landing, a.exclusions, a.transit_to_survey)
+except Exception as e:
+    print(f"BAD {type(e).__name__}: {e}")
+else:
+    where = a.site or a.source or "config"
+    print(f"OK survey {len(a.survey)} pts, fence {len(a.fence)} pts (from {where})")
+PYEOF
 )
-set -- $poly
-[ "${1:-0}" -gt 2 ] && ok "survey polygon has $1 vertices" || bad "survey polygon not set (mission.survey.area_polygon)"
-[ "${2:-0}" -gt 2 ] && ok "geofence polygon has $2 vertices" || bad "geofence polygon not set (safety.geofence.polygon)"
+case "$areas" in
+  OK*) ok "mission areas valid - ${areas#OK }" ;;
+  *)   bad "mission areas invalid - ${areas#BAD }" ;;
+esac
 
 ls hardware/params/*.param >/dev/null 2>&1 && ok "param dump present: $(ls -t hardware/params/*.param | head -1)" || bad "no param dump in hardware/params/ (dump from GCS, record hash in docs/HARDWARE.md)"
 [ -f hardware/calibration/imx296_intrinsics.yaml ] && ok "camera intrinsics present" || warn "camera intrinsics missing (georef accuracy will suffer)"

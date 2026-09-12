@@ -18,6 +18,36 @@ Entry template:
 
 ---
 
+## 2026-09-12 (latest) — Preflight false negative fixed; launcher works off macOS; Pi clock note
+- Who: Robin (with Claude)
+- Commit: this one   Profile: hardware (preflight) + sim (launcher)   Site: imav, fenswood
+- Changed: three fixes, prompted by working out what a teammate on Windows and on the Pi would hit.
+  (1) **`scripts/preflight.sh` was failing a correct configuration.** It checked the raw
+  `safety.geofence.polygon` key, which the site layer deliberately leaves empty —
+  `mission/area.py:165` supplies the fence from `site.flight_area` instead. The gate now resolves the
+  areas through `load_area_inputs` and runs `validate_area_inputs`, so it checks what will actually be
+  uploaded, including survey-inside-fence. `launch_hardware.sh` now passes `SITE` through, so the gate
+  checks the site being flown rather than the default.
+  (2) **`launch_sim.sh` works off macOS.** `open -a Terminal` now falls back to a tmux window per
+  stage, then to detached processes with logs. `nc -z` replaced with a bash `/dev/tcp` probe, so
+  netcat is no longer a dependency. Browser opening uses `xdg-open` where there is no `open`.
+  (3) **Pi clock guidance corrected.** `PI-SETUP.md` said a wrong clock was harmless for flying. True
+  until the geotagger landed; now frame times and telemetry times must share a timeline.
+- Tested: 105 unit tests pass, lint clean, all three scripts parse. `preflight.sh` run for both sites:
+  `mission areas valid - survey 4 pts, fence 4 pts (from imav)` and `survey 5 pts, fence 4 pts (from
+  fenswood)`. `launch_sim.sh --dry-run` correctly reports ports 5760/5762 in use via the new probe.
+- Result: PASS — the only preflight failure left on this machine is the missing parameter dump, which
+  is a real one.
+- Learned / surprises:
+  - The preflight gate would have refused every hardware launch, naming a config key that is blank on
+    purpose. Worth remembering that a safety gate checking raw config rather than resolved config can
+    fail closed for the wrong reason, and a field day is an expensive place to find that out.
+  - A steady clock offset is harmless for geotagging; a mid-flight NTP step is not. Relative time is
+    what the chain needs.
+- Next: (1) dump autopilot parameters from the GCS into `hardware/params/` — the last real preflight
+  failure; (2) camera intrinsics + `camera.hfov_deg`; (3) decide whether native Windows is worth
+  supporting or WSL stays the answer.
+
 ## 2026-09-12 (latest) — Geotagging chain ported from SaR; detector boundary moved down to pixels
 - Who: Robin (with Claude)
 - Commit: this one   Profile: sim   Site: n/a (offline)

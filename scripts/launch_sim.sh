@@ -49,6 +49,8 @@ SERIAL0=$((5760 + 10 * INSTANCE))
 SERIAL1=$((5762 + 10 * INSTANCE))
 DASH_PORT=$((5000 + INSTANCE))
 LAUNCH_DIR="$HERE/sim/runtime/launch"
+TMUX_SESSION="imav-sim${INSTANCE:+-$INSTANCE}"
+WINDOWS="Terminal"          # set by open_window: Terminal | tmux | background
 PY="$HERE/.venv/bin/python"
 
 say()  { printf '\033[1m▸ %s\033[0m\n' "$*"; }
@@ -76,6 +78,11 @@ SITE_NAME=$(echo "$SITE_HOME" | sed -n 2p); SITE_HOME=$(echo "$SITE_HOME" | sed 
 [ -n "$SITE_HOME" ] || warn "site '$SITE_NAME' has no sitl_home — SITL will use sim/locations.txt"
 [ -z "$SITE_HOME" ] || say "site $SITE_NAME: SITL home $SITE_HOME"
 
+# ── portable port probe: bash /dev/tcp, so netcat need not be installed ─────────────────────
+port_open() {     # port_open <port>
+  (exec 3<>"/dev/tcp/127.0.0.1/$1") 2>/dev/null
+}
+
 STRAY_SITL=$(pgrep -f "build/sitl/bin/arducopter" || true)
 STRAY_PROXY=$(pgrep -f "mavproxy" || true)
 STRAY_MISSION=$(pgrep -f "imav_m1.cli run" || true)
@@ -92,7 +99,7 @@ if [ -n "${STRAYS// /}" ]; then
   fi
 fi
 for p in "$SERIAL0" "$SERIAL1"; do
-  if nc -z 127.0.0.1 "$p" 2>/dev/null; then
+  if port_open "$p"; then
     warn "port $p is already in use"
     [ "$DRY" = "1" ] || die "try --instance 1, or scripts/stop_sim.sh"
   fi
@@ -114,13 +121,26 @@ open_window() {   # open_window <slug> <title> <command...>
   } > "$f"
   chmod +x "$f"
   if [ "$DRY" = "1" ]; then echo "    would open: $title"; sed 's/^/        /' "$f" | sed -n '4,6p'; return; fi
-  open -a Terminal "$f"
+  if [ "$(uname)" = "Darwin" ] && command -v open >/dev/null 2>&1; then
+    open -a Terminal "$f"
+  elif command -v tmux >/dev/null 2>&1; then
+    # Linux, WSL, or a Mac without Terminal: same one-window-per-stage layout inside tmux.
+    if tmux has-session -t "$TMUX_SESSION" 2>/dev/null; then
+      tmux new-window -t "$TMUX_SESSION" -n "$slug" "$f"
+    else
+      tmux new-session -d -s "$TMUX_SESSION" -n "$slug" "$f"
+    fi
+    WINDOWS="tmux"
+  else
+    nohup "$f" > "$LAUNCH_DIR/${slug}.log" 2>&1 &
+    WINDOWS="background"
+  fi
 }
 
 wait_port() {     # wait_port <port> <seconds> <what>
   local port="$1" limit="$2" what="$3" i=0
   while [ "$i" -lt "$limit" ]; do
-    nc -z 127.0.0.1 "$port" 2>/dev/null && { say "$what ready on port $port"; return 0; }
+    port_open "$port" && { say "$what ready on port $port"; return 0; }
     sleep 1; i=$((i + 1)); printf '.'
   done
   echo; return 1
@@ -171,7 +191,10 @@ else
       "IMAV_RUN_DIR='$HERE/data/flights/latest' IMAV_DASHBOARD='http://127.0.0.1:$DASH_PORT' $DETECTOR_CMD"
   fi
   if [ "$AUTO" = "0" ] && [ "$BROWSER" = "1" ] && [ "$DRY" = "0" ]; then
-    sleep 4; open "http://localhost:$DASH_PORT/" 2>/dev/null || true
+    sleep 4
+    if command -v open >/dev/null 2>&1; then open "http://localhost:$DASH_PORT/" 2>/dev/null || true
+    elif command -v xdg-open >/dev/null 2>&1; then xdg-open "http://localhost:$DASH_PORT/" 2>/dev/null || true
+    fi
   fi
 fi
 
@@ -187,4 +210,8 @@ cat <<TXT
     results          data/flights/<today>_sim_NN_$NAME/   (also data/flights/latest)
     stop everything  scripts/stop_sim.sh
 TXT
+case "$WINDOWS" in
+  tmux)       echo "    stages           tmux session '$TMUX_SESSION' — attach with: tmux attach -t $TMUX_SESSION" ;;
+  background) echo "    stages           detached (no Terminal, no tmux) — logs in sim/runtime/launch/*.log" ;;
+esac
 [ "$AUTO" = "1" ] || echo "    In the dashboard: Setup → Preflight → tick 'safety pilot ready' → START MISSION."

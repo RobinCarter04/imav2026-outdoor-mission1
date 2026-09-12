@@ -228,8 +228,16 @@ cd ~/imav-m1
 ```
 
 This time there is no `--bench`, so the preflight gate runs. It refuses to launch if the tests fail,
-the git tree is dirty, the polygons are not set or there is no parameter dump. That refusal is doing
+the git tree is dirty, the areas do not validate or there is no parameter dump. That refusal is doing
 its job. Fix the thing it names.
+
+**Let the clock settle before you launch.** Geotagging matches each camera frame to the telemetry
+recorded at the same instant, so the two streams have to share one timeline. A steady offset is fine
+— both read the same Pi clock. What breaks it is a *step*: if the Pi picks up a network and NTP
+corrects the clock mid-flight, telemetry recorded before the jump and frames captured after it no
+longer line up, and the positions come out confidently wrong. The Pi has no battery-backed clock, so
+if you have just given it a hotspot, wait for `timedatectl` to say *System clock synchronized: yes*
+before you launch — or leave it offline and accept a wrong-but-steady clock, which costs nothing.
 
 Then on the laptop, at `http://<pi-ip>:5000`: **Setup → Preflight → tick safety pilot ready → START.**
 
@@ -273,7 +281,7 @@ Ctrl-B is a prefix. Press and release it, then press the next key.
 | Dashboard loads but shows no telemetry | The MAVProxy bridge is not seeing the Cube. Go back to Part 4 |
 | Preflight refuses to go green | Read the rows on the dashboard. GPS and EKF need ~30 seconds outdoors and never lock indoors |
 | "Read-only file system" when writing logs | Some lab Pi images protect the root filesystem. `mount \| grep " / "`; if it says `overlay`, turn off the overlay in `raspi-config` → Performance Options |
-| Clock is wrong, log timestamps look odd | No internet, so no time sync. Harmless for flying, annoying when comparing logs |
+| Clock is wrong, log timestamps look odd | No internet, so no time sync. A steady offset is harmless — both processes read the same clock and geotagging only needs relative time. A clock **step** during a flight is not: see the note in Part 6 |
 
 ---
 
