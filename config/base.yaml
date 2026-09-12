@@ -1,6 +1,6 @@
 # Base configuration — shared by every profile. Profile overlays (sim.yaml / hardware.yaml) override
 # only what genuinely differs between simulation and the aircraft.
-# Rulebook citations (§) are to docs/rulebook/Rulebook_IMAV2026_V4-1.pdf. TODO = still to confirm.
+# Rulebook citations (§) are to docs/project/rulebook/ (V4). TODO = still to confirm.
 
 site:                         # WHERE we are flying. Selected with --site; the overlay that fills
   name: imav                  # this in lives in config/sites/<name>.yaml (imav | fenswood).

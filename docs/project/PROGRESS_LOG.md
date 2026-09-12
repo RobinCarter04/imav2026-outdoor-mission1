@@ -18,6 +18,23 @@ Entry template:
 
 ---
 
+## 2026-09-12 — Repo reshaped for sharing; teaching, human and AI guides
+- Who: Robin (with Claude)
+- Commit: this one, on top of `56c7de8`   Profile: n/a (docs + layout)
+- Changed: top level now reads as code plus instructions. Operational docs stay in `docs/`
+  (HUMAN-REFERENCE, LAUNCH, SAFETY, SIM_TO_REAL, HARDWARE, DETECTION_INTERFACE, AI-GUIDE, templates);
+  planning and history moved to `docs/project/` (decisions, progress log, working notes, requirements,
+  assessment, rulebook). The 3 MB rulebook PDF is no longer tracked — the text extract and a download
+  link remain, since it is the organisers' document to distribute. New `README.md` (five-minute start),
+  `docs/HUMAN-REFERENCE.md` (the gotchas that cost an hour each), `docs/AI-GUIDE.md` (using Claude Code
+  on this repo safely), `docs/project/TEACHING-PLAN.md` (90-minute session to get the team flying solo).
+  Every cross-reference rewritten to the new paths.
+- Tested: `make test` 59 passed, lint clean, markdown link check across the repo reports zero broken
+  links, `launch_sim.sh --dry-run --site fenswood` unchanged.
+- Result: PASS.
+- Next: push to GitHub (private), run the teaching session, then the four assessment fixes (results on
+  shutdown, fence read-back, home-inside-fence, mission timer).
+
 ## 2026-09-10 (later still) — Operator RESUME gate, site switch (Fenswood/IMAV), detector connector
 - Who: Robin (with Claude)
 - Commit: uncommitted on top of `7d80a68`   Profile: sim   Sites: imav, fenswood
@@ -98,7 +115,7 @@ Entry template:
   the fence (Area 1 as drawn abuts the flight-zone boundary and overlaps it ~20 m at its SE corner — the
   KML therefore exposes the rulebook geofence as the fence and the traced flight zone as advisory).
   `config/sim.yaml` now flies the drawn Area 1 with landing at the multirotor T/O square; SITL home moved
-  there; `imav-m1 run --connection` override; `docs/PROGRESS_ASSESSMENT_2026-09-10.md` + status page.
+  there; `imav-m1 run --connection` override; `docs/project/PROGRESS_ASSESSMENT_2026-09-10.md` + status page.
 - Tested: `make test` 33 passed, lint clean. `imav-m1 plan --kml sim/areas/haguenau_fig19.kml`: 7 lines,
   3.27 km, ≈5.8 min at 10 m/s. SITL nominal run on the KML area (instance -I1, ports 5770+): 14/14
   waypoints, landed at the T/O square, 3/3 vehicles (`data/flights/2026-09-10_sim_05_fig19area`).

@@ -49,3 +49,6 @@ desktop.ini
 # ---- Secrets ----
 .env
 *.pem
+
+# the rulebook PDF is not tracked — download it from the link in docs/project/rulebook/README.md
+docs/project/rulebook/*.pdf

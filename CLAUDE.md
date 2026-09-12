@@ -3,11 +3,11 @@
 ## What this is
 Autonomous mapping-and-detection mission (IMAV 2026 **Outdoor Mission 1**) for an ArduPilot quadrotor
 with a Raspberry Pi 5 companion computer. Competition: **21–25 Sep 2026, Strasbourg**. Rulebook V4
-(1 Sep 2026) lives in `docs/rulebook/`. Developed simulation-first (ArduPilot SITL), then moved to
+(1 Sep 2026) lives in `docs/project/rulebook/`. Developed simulation-first (ArduPilot SITL), then moved to
 hardware through the gate in `docs/SIM_TO_REAL.md`.
 
 Owner: Robin Carter. Prior working code to port from: `~/Desktop/MSc Aerial Robotics/SaR Quadrotor Mission/`
-(see `docs/WORKING_NOTES.md` §3 for the file-by-file map).
+(see `docs/project/WORKING_NOTES.md` §3 for the file-by-file map).
 
 ## Stack
 Python ≥ 3.10 · pymavlink · ArduCopter (Cube Orange) · MAVProxy bridge on the Pi · SITL for sim ·
@@ -49,16 +49,22 @@ make check-config PROFILE=hardware
 1. Do NOT modify `config/hardware.yaml`, any `safety:` block, or anything in `hardware/params/` unless
    the human explicitly asks for that specific change in the current conversation.
 2. Do NOT write code that bypasses pre-arm checks, disables failsafes/fence, or arms automatically.
-3. Do NOT invent rulebook facts. Cite `docs/rulebook/<file>` with a section number, or write `TBD`.
+3. Do NOT invent rulebook facts. Cite `docs/project/rulebook/<file>` with a section number, or write `TBD`.
 4. Every change to `mission/` or `vehicle/` gets a unit test. `make test` must be green.
 5. Prefer porting from the SaR project over rewriting. Say which file you ported from.
 6. Keep diffs small and single-purpose. Don't refactor unrelated code in passing.
 7. Before finishing a session that changed code or ran anything: append an entry to
-   `docs/PROGRESS_LOG.md` (commit, profile, what, how tested, result, next). Record non-obvious
-   choices in `docs/DECISIONS.md`.
+   `docs/project/PROGRESS_LOG.md` (commit, profile, what, how tested, result, next). Record non-obvious
+   choices in `docs/project/DECISIONS.md`.
 8. Flag anything that looks unsafe or contradicts the rulebook instead of silently working around it.
 
+## Docs layout
+Operational (needed to fly): `docs/HUMAN-REFERENCE.md`, `LAUNCH.md`, `SAFETY.md`, `SIM_TO_REAL.md`,
+`HARDWARE.md`, `DETECTION_INTERFACE.md`, `AI-GUIDE.md`, `templates/`.
+Background (planning + history, not needed to fly): `docs/project/` — decisions, progress log,
+working notes, requirements, rulebook extract.
+
 ## Where things are decided
-`docs/REQUIREMENTS.md` (what "done" means) · `docs/DECISIONS.md` (why) · `docs/HARDWARE.md` (what flies)
-· `docs/WORKING_NOTES.md` (open questions — check before asking the human something already answered)
+`docs/project/REQUIREMENTS.md` (what "done" means) · `docs/project/DECISIONS.md` (why) · `docs/HARDWARE.md` (what flies)
+· `docs/project/WORKING_NOTES.md` (open questions — check before asking the human something already answered)
 · `docs/LAUNCH.md` (how a session is started, on the laptop and on the Pi).

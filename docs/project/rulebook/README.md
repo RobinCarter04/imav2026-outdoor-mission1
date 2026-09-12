@@ -1,5 +1,9 @@
 # Rulebook
 
+**The PDF is not tracked in git** (3 MB, and it is the organisers' document to
+distribute). Download it from the link below into this folder if you want it locally; the text
+extract alongside is what the requirements cite.
+
 Current: **V4 (1 Sep 2026)** — `Rulebook_IMAV2026_V4-1.pdf` (39 pages) with a plain-text extract
 `Rulebook_IMAV2026_V4-1.txt` for grepping (`grep -n "5.4.1" Rulebook_IMAV2026_V4-1.txt`).
 Source page (check for newer versions before every planning session):

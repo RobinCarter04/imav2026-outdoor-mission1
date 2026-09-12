@@ -1,65 +1,59 @@
-# IMAV 2026 — Outdoor Mission 1: Mapping and Vehicle Identification
+# IMAV 2026 — Outdoor Mission 1
 
-Competition: **IMAV 2026, 21–25 September 2026** — outdoor flying at the Haguenau military training ground
-(rulebook V4, 1 Sep 2026 — see `docs/rulebook/`).
+Autonomous mapping and vehicle identification for the IMAV 2026 outdoor competition, flown on an
+ArduPilot multirotor with a Raspberry Pi companion computer.
 
-Goal: fly a fully autonomous mission (Outdoor Mission 1) that maps a 440 × 280 m area, locates up to
-eight fire-brigade / military vehicles to within 5 m and identifies them, on an ArduPilot quadrotor with a Raspberry Pi companion computer, developed
-**simulation-first** in ArduPilot SITL and transitioned to hardware through a
-gated checklist.
+One AUTO mission does the whole flight: take off, fly a survey pattern over the area, return, land.
+A detector runs alongside and reports vehicles it finds. On touchdown the code writes the
+competition submission: a table of vehicles with GPS coordinates, a map, and a zip of both.
 
-## Read these first
-| File | What it is |
-|---|---|
-| [CLAUDE.md](CLAUDE.md) | Project context + hard rules for any AI assistant working in this repo |
-| [docs/WORKING_NOTES.md](docs/WORKING_NOTES.md) | Scratch thinking, open questions, ideas (messy is fine) |
-| [docs/PROGRESS_LOG.md](docs/PROGRESS_LOG.md) | Dated log: what changed, how it was tested, result, next |
-| [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) | Rulebook-traced requirements (R-xx) — the source of truth for "done" |
-| [docs/DECISIONS.md](docs/DECISIONS.md) | Decision records (why we chose X over Y) |
-| [docs/HARDWARE.md](docs/HARDWARE.md) | Airframe, autopilot, companion, camera, wiring, pinned versions |
-| [docs/SIM_TO_REAL.md](docs/SIM_TO_REAL.md) | Gate checklist: what must be true before code touches the aircraft |
-| [docs/SAFETY.md](docs/SAFETY.md) | Non-negotiable safety rules and emergency procedures |
+The only manual step is pressing START. A safety pilot can take control at any moment.
 
-## Quick start (laptop, simulation) — full runbook in [docs/LAUNCH.md](docs/LAUNCH.md)
+## Get it running in five minutes
+
 ```bash
-make setup                        # once: venv + editable install
-make test                         # unit tests (no SITL) — green before any hardware work
-make launch                       # SITL + mission dashboard, each in its own Terminal window
-make launch GCS=<vm-host-or-ip>   # …and Mission Planner in the Parallels VM spectating
-make stop                         # stop everything
-```
-Then in the dashboard at http://localhost:5000: **Setup → Preflight → tick "safety pilot ready" → START.**
-On the aircraft it is one SSH session and one script — see [docs/LAUNCH.md](docs/LAUNCH.md) §2.
-
-## Layout
-```
-config/         base.yaml + sim.yaml / hardware.yaml overlays  ← the ONLY place sim and hardware differ
-src/imav_m1/    mission package
-  vehicle/      MAVLink abstraction (the only module allowed to import pymavlink) + FakeVehicle for tests
-  mission/      state machine, survey pattern generation
-  detection/    camera capture, YOLO inference, pixel→GPS georeferencing
-  mapping/      pose-tagged image capture, map/orthomosaic output
-  config/       YAML profile loader
-  cli.py        entry points: run / replay / check-config
-sim/            SITL setup, start locations, scripted test scenarios
-tests/          unit/ (fast, no SITL) and integration/ (marked `sitl`)
-scripts/        start_sitl.sh, run_mission.sh, preflight.sh
-hardware/       ArduPilot param dumps (dated), camera calibration
-data/           flight logs, datasets, model weights (git-ignored; see data/README.md)
-docs/           notes, log, requirements, decisions, hardware, safety, templates
-tools/          log analysis / plotting helpers
+make setup                              # once: virtualenv + install
+make test                               # must be green
+make launch                             # SITL + mission dashboard, a window each
+make launch SITE=fenswood               # the Fenswood Farm test area instead
+make launch GCS=<windows-vm-hostname>   # and Mission Planner spectating
+make stop                               # stop everything
 ```
 
-## Workflow (the loop)
-1. Write or change code on a branch. Keep diffs small.
-2. `make test` green. Add a unit test for any new mission logic (use `FakeVehicle`).
-3. Run it in SITL (`make sitl` + `make mission-sim`). Fill a `docs/templates/sim_run_report.md`.
-4. Append to `docs/PROGRESS_LOG.md` (commit hash, profile, what, how tested, result, next).
-5. Hardware only after **every** box in `docs/SIM_TO_REAL.md` for the current stage is ticked.
-6. Every real flight gets a flight test card (`docs/templates/flight_test_card.md`) and a log folder under `data/flights/`.
+The dashboard opens at http://localhost:5000. Work down it: **Setup → Preflight → tick "safety pilot
+ready" → START MISSION.**
 
-## Prior work to reuse
-The SaR quadrotor project (`~/Desktop/MSc Aerial Robotics/SaR Quadrotor Mission/`) already has a
-working pymavlink state machine, survey pattern + waypoint generators, KML parsing, a Pi 5 + IMX296
-YOLOv8n detection pipeline with pixel→GPS estimation, and a `--fake` replay mode.
-Port, don't rewrite. See `docs/WORKING_NOTES.md` → "Reuse candidates".
+## Read these, in this order
+
+| | |
+|---|---|
+| [docs/HUMAN-REFERENCE.md](docs/HUMAN-REFERENCE.md) | The things that save you an hour. Read this one first. |
+| [docs/LAUNCH.md](docs/LAUNCH.md) | Every way to start a session, on the laptop and on the Pi |
+| [docs/SAFETY.md](docs/SAFETY.md) | Non-negotiable rules. Read before touching hardware. |
+| [docs/SIM_TO_REAL.md](docs/SIM_TO_REAL.md) | The gate code passes through before it flies |
+| [docs/AI-GUIDE.md](docs/AI-GUIDE.md) | Using Claude Code on this repo without breaking it |
+| [docs/HARDWARE.md](docs/HARDWARE.md) | What is on the aircraft |
+| [docs/DETECTION_INTERFACE.md](docs/DETECTION_INTERFACE.md) | For whoever writes the detector |
+
+Background, planning and history live in [docs/project/](docs/project/). None of it is needed to fly.
+
+## Where the code is
+
+```
+config/          base.yaml + sites/<site>.yaml + sim.yaml | hardware.yaml
+src/imav_m1/
+  mission/       state machine, states/, survey planning, geometry, mission items
+  vehicle/       MAVLink (the only place pymavlink is imported) + a fake for tests
+  detection/     the file contract with the detector, plus a placeholder detector
+  mapping/       the results writer: vehicle table, map, zip
+  ops/           operator dashboard
+scripts/         launch_sim.sh, launch_hardware.sh, start_sitl.sh, preflight.sh, stop_sim.sh
+tests/           unit/ runs the whole mission on a fake vehicle, no simulator needed
+sim/             SITL runbook, start locations, the digitised competition areas
+```
+
+## Two sites
+
+`--site imav` is the competition field at Haguenau. `--site fenswood` is Fenswood Farm, carried over
+from the search-and-rescue project, including its SSSI no-fly zone and the corridor that routes
+around it. A site can tighten the safety limits and never loosen them.

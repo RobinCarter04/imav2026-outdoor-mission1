@@ -16,7 +16,7 @@ Each folder should contain:
 | `detections/` | detection images with GPS in filename (as in the SaR pipeline) |
 | `report.md` | filled-in `docs/templates/sim_run_report.md` or `flight_test_card.md` |
 
-The mission code should create `run.yaml` automatically at startup (TODO — see `docs/WORKING_NOTES.md`).
+The mission code should create `run.yaml` automatically at startup (TODO — see `docs/project/WORKING_NOTES.md`).
 
 ## datasets/
 Recorded videos / image sets for `--replay` testing and detector evaluation. Note source, date, altitude, camera.
