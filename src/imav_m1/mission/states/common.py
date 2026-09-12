@@ -174,6 +174,31 @@ class MissionState(BaseState):
             f"pilot override timeout ({timeout_s:.0f} s with no operator RESUME)", command_rtl=False
         )
 
+    # ── competition slot guard (§2.2) ─────────────────────────────────────────────────────
+    def slot_return_deadline_s(self) -> float | None:
+        """Wall-clock time by which the return leg must start, or None when the guard is off."""
+        m = self.cfg["mission"]
+        duration, margin = m.get("slot_duration_s"), m.get("return_margin_s")
+        start = self.shared.get("mission_start_time")
+        if not duration or start is None:
+            return None
+        return float(start) + float(duration) - float(margin or 0.0)
+
+    def slot_seconds_left(self) -> float | None:
+        deadline = self.slot_return_deadline_s()
+        return None if deadline is None else deadline - self.now()
+
+    def slot_return_due(self) -> bool:
+        left = self.slot_seconds_left()
+        return left is not None and left <= 0.0
+
+    def next_nav_seq_after(self, seq: int) -> int | None:
+        """First navigation item after `seq` — where the return leg starts."""
+        for item in self.shared.get("mission_items", []):
+            if item.seq > seq and item.is_nav:
+                return item.seq
+        return None
+
     def clear_mission_keys(self) -> None:
         for k in list(self.shared.keys()):
             if k.startswith(MISSION_KEYS_PREFIXES):

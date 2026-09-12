@@ -42,7 +42,22 @@ This is the SaR `cv_comm.py` contract, extended with a detections log. Placehold
 | `conf` | no | 0–1 |
 | `image` | no | path relative to the run dir; keep crops for the human check |
 | `id` | yes | stable per vehicle so re-detections can be reconciled |
+| `position_error_m` | no | your own estimate of how far off this fix could be, in metres |
 | `source` | no | `yolo`, `placeholder`, … |
+
+### What we do with it before submitting
+
+The mission filters what you append before it reaches the table (`detection/filter.py`, ADR-012), so
+a marginal fix costs nothing to send:
+
+- a row needs a `cls` or an `ident`, otherwise it cannot score;
+- `conf` below 0.5 is dropped, and so is a `position_error_m` above 5 m, which is the rulebook
+  tolerance (§5.4.1). **Omitting either field is never held against you** — only a value that admits
+  the fix is bad gets it dropped;
+- the same vehicle reported twice is merged: by `id` first, then by same class within 10 m. Keep `id`
+  stable across frames and the merge is exact. The fix with the smaller `position_error_m` wins.
+
+Every rejection and its reason lands in `results/summary.json`, so nothing disappears quietly.
 
 The mission uses `ident` if present else `cls` as the "Vehicle Identification" column.
 

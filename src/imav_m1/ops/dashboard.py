@@ -65,7 +65,8 @@ button.resume{background:#575;font-weight:700}button.resume:disabled{background:
 <div>
 <section id="ovr" hidden><h3>Safety pilot has control</h3><div id="ovrtext"></div></section>
 <section><h3>Map (local metres)</h3><canvas id="map" width="900" height="640"></canvas></section>
-<section><h3>Survey</h3><div class="bar"><div id="pbar" style="width:0"></div></div><div id="survey" class="mono">—</div></section>
+<section><h3>Survey</h3><div class="bar"><div id="pbar" style="width:0"></div></div>
+<div id="slot" class="mono"></div><div id="survey" class="mono">—</div></section>
 </div>
 <div>
 <section><h3>Results / submission</h3><div id="countdown" class="big">—</div><div id="results" class="mono">—</div></section>
@@ -95,10 +96,14 @@ function render(s){
   rb.disabled=!o.can_resume;rb.textContent=o.can_resume?'RESUME MISSION':'RESUME (pilot must return to GUIDED)';
  }else{ob.hidden=true;rb.disabled=true;rb.textContent='RESUME MISSION';}
  const sv=s.survey||{};$('pbar').style.width=(sv.pct||0)+'%';$('survey').textContent=fmt(sv);
+ const sl=sv.slot_seconds_left;
+ if(sl!==undefined&&sl!==null){const m=Math.floor(Math.abs(sl)/60),ss=String(Math.abs(sl)%60).padStart(2,'0');
+  $('slot').textContent=(sl<0?'slot margin spent — returning':`${m}:${ss} of slot before return`);
+  $('slot').style.color=sl<120?'#e55':'#9ab';}else{$('slot').textContent='';}
  const d=s.detections||[];$('ndet').textContent=d.length?`(${d.length})`:'';$('det').innerHTML=d.map((x,i)=>`<tr><td>${i+1}</td><td>${x.ident||x.cls}</td><td class="mono">${(+x.lat).toFixed(6)} ; ${(+x.lon).toFixed(6)}</td></tr>`).join('');
  $('land').textContent=fmt(s.landing)+(s.abort?'\nABORT: '+fmt(s.abort):'');
  if(s.results){const r=s.results;const sec=r.seconds_to_deadline;$('countdown').textContent=sec===undefined?'':(sec>=0?`${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')} to submit`:'DEADLINE PASSED');$('countdown').style.color=sec<60?'#e55':'#5d5';
-  $('results').innerHTML=`vehicles: ${r.paths&&r.paths.vehicles} · <a href="/api/results/results.zip" style="color:#8cf">results.zip</a> · <a href="/api/results/mission1_vehicles.csv" style="color:#8cf">table</a> · <a href="/api/results/mission1_map.svg" target="_blank" style="color:#8cf">map</a>`}
+  $('results').innerHTML=`vehicles: ${r.paths&&r.paths.vehicles} accepted${r.paths&&r.paths.rejected?` (${r.paths.rejected} rejected)`:''} · <a href="/api/results/results.zip" style="color:#8cf">results.zip</a> · <a href="/api/results/mission1_vehicles.csv" style="color:#8cf">table</a> · <a href="/api/results/mission1_map.svg" target="_blank" style="color:#8cf">map</a>`}
  $('log').textContent=(s.log_tail||[]).join('\n');$('log').scrollTop=1e9;
  if(s.plan_geometry)geom=s.plan_geometry;if(t.lat&&t.armed){if(!lastT||Math.abs(t.lat-lastT[0])>1e-6||Math.abs(t.lon-lastT[1])>1e-6){track.push([t.lat,t.lon]);lastT=[t.lat,t.lon]}}
  draw(t,d);

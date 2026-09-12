@@ -5,7 +5,9 @@
     a failsafe or the pilot is bringing it home → ABORT (no commands). Any other mode = pilot
     override → pause; the mission only continues when the pilot has handed back (GUIDED) AND the
     operator presses RESUME (MissionState.pilot_override_pause); time out → ABORT;
-  * completion is judged on MISSION_ITEM_REACHED of the last survey waypoint, not MISSION_CURRENT.
+  * completion is judged on MISSION_ITEM_REACHED of the last survey waypoint, not MISSION_CURRENT;
+  * the competition slot guard (§2.2) cuts the survey short rather than overrunning: it jumps the
+    autopilot to the return leg of the mission already uploaded, so ArduPilot still owns the flying.
 The detector is told DETECTING for the duration; detections are surfaced to the dashboard.
 """
 
@@ -58,6 +60,9 @@ class SurveyState(MissionState):
                     "pct": int(100 * done_lines / total) if total else 0,
                     "elapsed": self.elapsed_str("survey_start_time"),
                     "detections": len(dets),
+                    "slot_seconds_left": (
+                        None if self.slot_seconds_left() is None else int(self.slot_seconds_left())
+                    ),
                 },
             )
             self.push("detections", dets[-50:])
@@ -83,6 +88,32 @@ class SurveyState(MissionState):
                 return self.go_abort(
                     f"battery {t.battery_pct}% below {batt_min}%", command_rtl=True
                 )
+            if self.slot_return_due() and not self.shared.get("slot_return_started"):
+                nxt = self.next_nav_seq_after(last)
+                self.shared["slot_return_started"] = True
+                self.shared["slot_forced_return"] = True
+                if nxt is None:
+                    return self.go_abort(
+                        "competition slot guard expired and the mission has no return leg",
+                        command_rtl=True,
+                    )
+                self.log(
+                    f"SLOT GUARD: {done_lines}/{total} survey lines done and the slot margin is "
+                    f"spent — skipping to the return leg (mission item {nxt})"
+                )
+                self.vehicle.set_current_mission_item(nxt)
+                self.push(
+                    "survey",
+                    {
+                        "status": "RETURNING (slot guard)",
+                        "done": done_lines,
+                        "total": total,
+                        "pct": int(100 * done_lines / total) if total else 0,
+                        "elapsed": self.elapsed_str("survey_start_time"),
+                        "detections": len(dets),
+                    },
+                )
+                return "RETURN_LAND"
             if self.is_abort_command(self.consume_command()):
                 return self.go_abort("operator abort", command_rtl=True)
             if self.shared["survey_last_reached"] >= last:

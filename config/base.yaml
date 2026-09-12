@@ -33,6 +33,11 @@ mission:
     edge_margin_m: 12         # waypoints are inset this far from the area edge (fence margin + GPS error);
                               # the camera half-footprint (≈25 m at 60 m / 45°) still covers the edge strip
     turn_time_s: 4            # planning estimate per line turn
+  # Competition slot guard (§2.2: 30 minutes per team for all missions). When the mission has been
+  # running for slot_duration_s minus return_margin_s, the survey is cut short and the aircraft flies
+  # the return leg of the mission it already has. null on either disables the guard.
+  slot_duration_s: 1800
+  return_margin_s: 300
 
 deliverables:                 # §5.4.1, Tab. 6 — written automatically on landing (E-05)
   table_path: results/mission1_vehicles.csv   # Vehicle | Identification | lat ; lon (decimal degrees)
@@ -99,6 +104,11 @@ detection:
   classes: [CCF, VLTT, VT4, GBC180, VBL]              # §5.4.1 vehicle types; brigade letters handled separately
   conf_threshold: 0.5
   input_size: 640
+  accept:                     # what reaches the submission table (detection/filter.py)
+    min_confidence: 0.5       # below this a fix is dropped; null accepts any
+    max_position_error_m: 5.0 # §5.4.1 scores within 5 m; a fix admitting worse is dropped
+    merge_radius_m: 10.0      # same-class fixes closer than this are one vehicle, not two
+    require_label: true       # a row with no class and no identification scores nothing
 
 mapping:
   capture_interval_s: null    # null = derive from overlap_front, speed and footprint (E-06)

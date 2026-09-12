@@ -66,6 +66,14 @@ Arming needs an explicit START. Nothing arms on boot, on a timer, or on reconnec
 
 Results are written on landing **and** after an abort, so a bad run still produces something.
 
+Not every detection reaches the table. A fix needs a label, confidence of at least 0.5, and a claimed
+position error of 5 m or better. The same vehicle seen on two survey lines is merged into one row.
+Rejections and their reasons are in `summary.json`.
+
+There is a slot guard for the 30-minute competition window. Thirty minutes after START, minus a five
+minute margin, the survey stops where it is and the aircraft flies the return leg it already has.
+Partial coverage scores; an overrun does not. Set `mission.slot_duration_s` to null to switch it off.
+
 You get a vehicle table in the rulebook's format, a map, a summary and a zip, under
 `data/flights/<date>_<sim|hw>_NN_<name>/results/`. The dashboard shows a five minute countdown from
 touchdown, which is the rulebook's submission window.

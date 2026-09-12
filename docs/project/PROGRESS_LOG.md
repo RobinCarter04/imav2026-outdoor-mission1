@@ -18,6 +18,29 @@ Entry template:
 
 ---
 
+## 2026-09-12 (later) — Slot guard and detection acceptance ported from the team's outdoor FSM
+- Who: Robin (with Claude)
+- Commit: this one   Profile: sim   Site: imav
+- Changed: reviewed Ziyan Lei's `imav2026_vision_fsm` and adopted its two strongest rules (ADR-012).
+  **Slot guard**: `mission.slot_duration_s` / `return_margin_s` (1800/300). When the margin is spent,
+  SURVEY jumps the autopilot to the first nav item after the survey and hands to RETURN_LAND — a
+  normal return, not an abort, so results are still written. **Detection acceptance**:
+  `detection/filter.py` requires a label, confidence ≥ 0.5 and any reported position error ≤ 5 m, and
+  merges repeats by id then by same class within 10 m. Rejections and reasons go into `summary.json`;
+  the map now draws the accepted set so it matches the table. Dashboard shows the slot countdown and
+  the accepted/rejected counts.
+- Tested: `make test` **74 passed** (12 new filter tests, 3 new mission tests), lint clean.
+  **Real SITL, mid-survey cut:** guard fired at 3/14 survey lines, ArduPilot honoured MISSION_SET_CURRENT
+  to item 16, flew the return leg, landed, and the table still carried the 2 vehicles found before the
+  cut (`data/flights/2026-09-12_sim_02_slotmid`). A second run with a longer slot completed all 14
+  lines and reported 3 of 3.
+- Result: PASS.
+- Learned / surprises: jumping the mission item mid-AUTO is honoured cleanly by ArduPilot, which makes
+  the slot guard a route change rather than a second command path — worth remembering for any future
+  "cut it short" behaviour. Their FSM has no notion of a safety pilot, flight mode or link loss, which
+  is why it is not the thing we fly; noted in the comparison for the team.
+- Next: run the teaching session; the four assessment fixes; decide M4 ownership.
+
 ## 2026-09-12 (later) — Pushed to GitHub; Pi setup guide; one-command simulator install
 - Who: Robin (with Claude)
 - Commit: this one   Profile: n/a

@@ -384,3 +384,67 @@ def test_planning_above_the_site_ceiling_is_refused(tmp_path):
     m.run()
     assert "above the 50 m ceiling" in ctx.shared["last_error"]
     assert "arm" not in v.calls
+
+
+# ── competition slot guard (§2.2), ported from the team's outdoor FSM ──────────────────────────
+
+
+def test_slot_guard_cuts_the_survey_short_and_flies_the_return_leg(tmp_path):
+    """When the 30-minute slot margin is spent, stop surveying and come home with what we have."""
+    ctx, v, status = make_ctx(tmp_path)
+    ctx.cfg["mission"]["slot_duration_s"] = 60.0
+    ctx.cfg["mission"]["return_margin_s"] = 30.0  # so the guard trips 30 s after START
+    v.connect()
+    for c in OPERATOR_SEQUENCE:
+        status.send_command(c)
+    m = StateMachine(ctx, STATE_CLASSES, INITIAL_STATE, max_transitions=60)
+    assert m.run() == "DONE", m.history
+
+    assert ctx.shared["slot_forced_return"] is True
+    assert "ABORT" not in m.history, "a slot return is a normal return, not an abort"
+    assert m.history[-4:] == ["SURVEY", "RETURN_LAND", "REPORT", "DONE"]
+
+    first, last = ctx.shared["survey_seq_range"]
+    assert ctx.shared["survey_last_reached"] < last, "expected the survey to be cut short"
+    assert v.armed() is False
+    assert geo.distance_m((v.lat, v.lon), tuple(ctx.cfg["landing"]["point"])) < 3.0
+    assert (tmp_path / "results" / "mission1_vehicles.csv").exists()
+
+
+def test_slot_guard_off_by_default_flies_the_whole_survey(tmp_path):
+    ctx, v, status = make_ctx(tmp_path)
+    ctx.cfg["mission"]["slot_duration_s"] = None
+    v.connect()
+    for c in OPERATOR_SEQUENCE:
+        status.send_command(c)
+    m = StateMachine(ctx, STATE_CLASSES, INITIAL_STATE, max_transitions=60)
+    assert m.run() == "DONE"
+    first, last = ctx.shared["survey_seq_range"]
+    assert ctx.shared["survey_last_reached"] >= last
+    assert not ctx.shared.get("slot_forced_return")
+
+
+def test_only_accepted_detections_reach_the_submission_table(tmp_path):
+    """The table is the score. A low-confidence fix and a duplicate must not appear on it."""
+    good = (*geo.offset(SITE, -60, 40), "CCF", "67-CCF-M-ING")
+    dupe = (*geo.offset(SITE, -56, 43), "CCF", "67-CCF-M-ING")  # same truck, next survey line
+    ctx, v, status = make_ctx(tmp_path, targets=[good, dupe])
+    v.connect()
+    for c in OPERATOR_SEQUENCE:
+        status.send_command(c)
+    m = StateMachine(ctx, STATE_CLASSES, INITIAL_STATE, max_transitions=60)
+    assert m.run() == "DONE"
+
+    import csv as _csv
+
+    with open(ctx.shared["results"]["paths"]["table"]) as f:
+        rows = list(_csv.reader(f))
+    assert len(rows) == 2, f"expected one vehicle row, got {rows[1:]}"
+    assert rows[1][0] == "67-CCF-M-ING"
+
+    import json as _json
+
+    summary = _json.loads((tmp_path / "results" / "summary.json").read_text())
+    assert summary["detections_reported"] == 2
+    assert summary["detections_accepted"] == 1
+    assert "duplicate" in summary["detections_rejected"][0]["reason"]

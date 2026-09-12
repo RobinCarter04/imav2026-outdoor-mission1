@@ -16,6 +16,7 @@ import zipfile
 from pathlib import Path
 from typing import Any
 
+from ..detection.filter import accept_detections, label_of
 from ..mission import geo
 
 
@@ -25,10 +26,7 @@ def write_vehicle_table(path: Path, detections: list[dict[str, Any]]) -> int:
         w.writerow(["Vehicle Identification", "GPS coordinates"])
         n = 0
         for d in detections:
-            if d.get("lat") is None or d.get("lon") is None:
-                continue
-            ident = d.get("ident") or d.get("cls") or "unknown"
-            w.writerow([ident, f"{float(d['lat']):.7f} ; {float(d['lon']):.7f}"])
+            w.writerow([label_of(d), f"{float(d['lat']):.7f} ; {float(d['lon']):.7f}"])
             n += 1
     return n
 
@@ -118,13 +116,14 @@ def collate(
     out.mkdir(exist_ok=True)
     geom = shared.get("plan_geometry") or {}
     stamp = dt.datetime.fromtimestamp(landed_time).strftime("%Y-%m-%d %H:%M:%S")
-    n = write_vehicle_table(out / "mission1_vehicles.csv", detections)
+    accepted, rejected = accept_detections(detections, cfg)
+    n = write_vehicle_table(out / "mission1_vehicles.csv", accepted)
     write_map_svg(
         out / "mission1_map.svg",
         [tuple(p) for p in geom.get("polygon", [])],
         [tuple(p) for p in geom.get("fence", [])],
         track,
-        detections,
+        accepted,
         geom.get("landing"),
         f"IMAV 2026 Outdoor Mission 1 — {cfg['mission']['name']} — landed {stamp}",
     )
@@ -137,9 +136,21 @@ def collate(
         "takeoff_time": shared.get("takeoff_time"),
         "landed_time": landed_time,
         "abort_reason": shared.get("abort_reason"),
+        "slot_forced_return": bool(shared.get("slot_forced_return")),
         "plan": plan.summary() if plan is not None else None,
         "vehicles_reported": n,
-        "detections": detections,
+        "detections_reported": len(detections),
+        "detections_accepted": len(accepted),
+        "detections_rejected": [
+            {
+                "reason": d.get("reason"),
+                "id": d.get("id"),
+                "cls": d.get("cls"),
+                "conf": d.get("conf"),
+            }
+            for d in rejected
+        ],
+        "detections": accepted,
         "track_points": len(track),
     }
     (out / "summary.json").write_text(json.dumps(summary, indent=2, default=str))
@@ -148,6 +159,7 @@ def collate(
         for p in out.iterdir():
             z.write(p, arcname=f"results/{p.name}")
     return {
+        "rejected": str(len(rejected)),
         "table": str(out / "mission1_vehicles.csv"),
         "map": str(out / "mission1_map.svg"),
         "summary": str(out / "summary.json"),

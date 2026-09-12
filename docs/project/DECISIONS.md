@@ -121,3 +121,28 @@ New record → copy `templates/decision_record.md`. Never delete a record; super
   survey, flown at `transit_speed_mps`. Loading refuses any survey waypoint, landing point or
   corridor waypoint that falls inside an exclusion.
 - Consequences: Fenswood flies the same route SaR flew. IMAV declares no exclusions, so nothing changes there.
+
+## ADR-012 — Competition slot guard and detection acceptance, ported from the team's outdoor FSM
+- Status: accepted (2026-09-12)
+- Context: Ziyan Lei's outdoor FSM (github.com/ChuanXiiiiii/IMAV-Competition,
+  `outdoor_mission/imav2026_vision_fsm`) is a decision core with no vehicle interface, so it is not
+  what we fly. Two of its rules are better than ours and cost little to adopt:
+  a slot-time guard that forces a return before the 30-minute team slot ends (§2.2), and acceptance
+  rules that keep a weak or duplicated fix off the submission table (`_capture_vehicle_records`).
+- Decision: port both.
+  **Slot guard** (`mission.slot_duration_s` / `mission.return_margin_s`, default 1800/300): when the
+  margin is spent, SURVEY jumps the autopilot to the first navigation item after the survey using
+  MISSION_SET_CURRENT and hands over to RETURN_LAND. ArduPilot keeps flying the mission it already
+  has, so this is a route change rather than a new command stream, and it is a normal return rather
+  than an abort — the results are still written.
+  **Acceptance** (`detection.accept`, in `detection/filter.py`): a fix needs a label, confidence at or
+  above 0.5, and a position error at or below 5 m when the detector reports one. Missing confidence or
+  error is not held against a detector, since both are optional in our contract. Repeats are merged by
+  stable id and, beyond that, by same class within `merge_radius_m` (10 m), keeping the fix with the
+  smaller error. Every rejection keeps its reason in `summary.json`.
+- Alternatives considered: adopting their FSM wholesale, rejected because it has never been connected
+  to an autopilot and there are nine days left; filtering inside the detector, rejected because the
+  submission table is ours to defend and the detector may be written by anyone.
+- Consequences: a survey that would overrun now returns with partial coverage instead, which scores.
+  One vehicle seen on two survey lines is submitted once. The detector gains an optional
+  `position_error_m` field, documented in `../DETECTION_INTERFACE.md`.
